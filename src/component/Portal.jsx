@@ -1,31 +1,16 @@
 import * as THREE from "three";
 import { useRef, useState, useEffect } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
-import { RigidBody, quat, vec3, euler } from "@react-three/rapier";
-import { PerspectiveCamera } from "@react-three/drei";
+import { useFrame, useThree, createPortal } from "@react-three/fiber";
+import { RigidBody } from "@react-three/rapier";
+import { PerspectiveCamera, useFBO } from "@react-three/drei";
 
-export function Portal({ thisPortal, otherPortal, color }) {
+export function Portal({ thisPortal, otherPortal }) {
   const rigidBodyRef = useRef();
   const portalCameraRef = useRef();
-  const renderTarget = useRef(new THREE.WebGLRenderTarget(1024, 1024));
-  const { gl, scene, camera } = useThree();
+  const mesh = useRef();
+  const renderTarget = useFBO();
+  const { camera } = useThree();
   const [cooldown, setCooldown] = useState(false);
-
-  useEffect(() => {
-    const aspect = renderTarget.current.width / renderTarget.current.height;
-    if (portalCameraRef.current) {
-      portalCameraRef.current.fov = camera.fov;
-      portalCameraRef.current.aspect = aspect;
-      portalCameraRef.current.near = camera.near;
-      portalCameraRef.current.far = camera.far;
-      portalCameraRef.current.updateProjectionMatrix();
-    }
-  }, [camera, portalCameraRef]);
-
-  useEffect(() => {
-    // Clean up the render target when the portal is unmounted
-    return () => renderTarget.current.dispose();
-  }, []);
 
   useFrame(() => {
     if (rigidBodyRef.current) {
@@ -61,14 +46,26 @@ export function Portal({ thisPortal, otherPortal, color }) {
     portalCameraRef.current.position.copy(otherWorldPosition);
     portalCameraRef.current.quaternion.copy(otherWorldQuaternion);
 
-    // Render the scene from the portal camera's perspective
-    gl.setRenderTarget(renderTarget.current);
-    gl.clear(); // Clear previous frame
-    gl.render(scene, portalCameraRef.current);
-    gl.setRenderTarget(null); // Reset render target
+    portalCameraRef.current.aspect = 1;
+    portalCameraRef.current.updateProjectionMatrix();
   });
 
-  let entryQuaternion = new THREE.Quaternion(); // Store entry portal rotation
+  useFrame((state) => {
+    const { gl, scene } = state;
+
+    // If there's no `otherPortal`, set the portal material to black (or a placeholder texture)
+    if (!otherPortal || !(portalCameraRef.current instanceof THREE.Camera)) {
+      mesh.current.material.map = null; // Render as blank (black)
+      return;
+    }
+
+    // Render the scene through the `portalCameraRef`
+    gl.setRenderTarget(renderTarget);
+    gl.render(scene, portalCameraRef.current);
+    gl.setRenderTarget(null);
+
+    mesh.current.material.map = renderTarget.texture;
+  });
 
   const teleportPlayer = (payload) => {
     const isPlayer = payload.other.rigidBodyObject?.name === "Player";
@@ -135,12 +132,9 @@ export function Portal({ thisPortal, otherPortal, color }) {
         onIntersectionEnter={(payload) => teleportPlayer(payload)}
       >
         <group>
-          <mesh>
+          <mesh ref={mesh}>
             <planeGeometry args={[2, 2]} />
-            <meshBasicMaterial
-              map={renderTarget.current.texture}
-              toneMapped={false}
-            />
+            <meshBasicMaterial />
           </mesh>
         </group>
       </RigidBody>
@@ -148,7 +142,7 @@ export function Portal({ thisPortal, otherPortal, color }) {
         ref={portalCameraRef}
         near={0.1}
         far={100}
-        fov={75}
+        fov={camera.fov}
         aspect={1}
       />
     </>
