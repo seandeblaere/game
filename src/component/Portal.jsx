@@ -47,6 +47,7 @@ export function Portal({ thisPortal, otherPortal }) {
     portalCameraRef.current.quaternion.copy(otherWorldQuaternion);
 
     portalCameraRef.current.aspect = 1;
+    // portalCameraRef.current.matrixWorldInverse.copy(camera.matrixWorldInverse);
     portalCameraRef.current.updateProjectionMatrix();
   });
 
