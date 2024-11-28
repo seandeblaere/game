@@ -9,7 +9,7 @@ export function usePortalPlacement(onPortalPlace, portal1, portal2) {
   const [isPortal1Active, setIsPortal1Active] = useState(true);
   const [subscribeToKeys, getKeys] = useKeyboardControls();
 
-  const MIN_PORTAL_DISTANCE = 1.6;
+  const MIN_PORTAL_DISTANCE = 2.4;
 
   const checkProximity = (portalType, newPortalPosition) => {
     const currentPortal1 = portal1;

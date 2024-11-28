@@ -145,13 +145,13 @@ export function Portal({ thisPortal, otherPortal }) {
         <group>
           <MeshCollider type="trimesh">
             <mesh ref={mesh}>
-              <circleGeometry args={[0.8, 32]} />
+              <circleGeometry args={[1.2, 32]} />
               <meshStandardMaterial />
             </mesh>
           </MeshCollider>
 
           <mesh>
-            <circleGeometry args={[0.8, 32]} />
+            <circleGeometry args={[1.2, 32]} />
             <meshBasicMaterial
               transparent={true} // Enable transparency
               opacity={0}
@@ -185,7 +185,7 @@ export function Portal({ thisPortal, otherPortal }) {
         far={50}
         fov={camera.fov}
         aspect={1}
-        zoom={0.5}
+        zoom={0.45}
         resolution={64}
         samples={1}
       />

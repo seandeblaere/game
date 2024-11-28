@@ -41,7 +41,7 @@ export function App() {
           performance={{ min: 0.3, max: 0.8 }}
           shadows
           camera={{ fov: 45 }}
-          dpr={[0.5, 2]}
+          dpr={[0.5, 1]}
         >
           <PerformanceMonitor
             factor={factor}
