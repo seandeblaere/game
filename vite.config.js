@@ -1,6 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { transformWithEsbuild } from "vite";
 import restart from "vite-plugin-restart";
+import glsl from "vite-plugin-glsl"; // Import the plugin
 
 export default {
   root: "src/",
@@ -11,6 +12,11 @@ export default {
 
     // React support
     react(),
+
+    // GLSL file support
+    glsl({
+      include: /\.(glsl|vs|fs|vert|frag)$/i, // Match GLSL file extensions
+    }),
 
     // .js file support as if it was JSX
     {
@@ -25,7 +31,7 @@ export default {
       },
     },
   ],
-  assetsInclude: ["**/*.glb"], // This line tells Vite to treat .glb files as assets
+  assetsInclude: ["**/*.glb"], // Treat .glb files as assets
   server: {
     host: true, // Open to local network and display URL
     open: !("SANDBOX_URL" in process.env || "CODESANDBOX_HOST" in process.env), // Open if not on CodeSandbox

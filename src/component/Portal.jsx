@@ -1,38 +1,57 @@
 import * as THREE from "three";
-import { useRef, useState, useEffect } from "react";
-import { useFrame, useThree, createPortal } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
-import { PerspectiveCamera, useFBO } from "@react-three/drei";
+import { useRef, useState, useEffect, useMemo } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { RigidBody, MeshCollider } from "@react-three/rapier";
+import {
+  PerspectiveCamera,
+  useFBO,
+  MeshTransmissionMaterial,
+  MeshReflectorMaterial,
+  ContactShadows,
+  Edges,
+  Outlines,
+  PositionalAudio,
+  Preload,
+} from "@react-three/drei";
+import { easing } from "maath";
 
 export function Portal({ thisPortal, otherPortal }) {
   const rigidBodyRef = useRef();
   const portalCameraRef = useRef();
   const mesh = useRef();
-  const renderTarget = useFBO();
+  const renderTarget = useFBO({ depthBuffer: false, stencilBuffer: false });
   const { camera } = useThree();
   const [cooldown, setCooldown] = useState(false);
+  const roughnessRef = useRef(0);
+
+  /* const roughness = useFrame((_, delta) => {
+    // Target roughness based on whether otherPortal exists
+    const targetRoughness = 1;
+
+    // Smoothly animate roughness toward the target value
+    easing.damp(roughnessRef.current, "value", targetRoughness, 0.2, delta);
+
+    // Update the material roughness
+    console.log("Roughness:", roughnessRef.current);
+  }); */
 
   useFrame(() => {
     if (rigidBodyRef.current) {
-      // Recalculate world position of the portal based on the moving parent
       const worldPosition = new THREE.Vector3();
       thisPortal.parent.localToWorld(worldPosition.copy(thisPortal.position));
 
-      // Recalculate rotation quaternion based on the normal vector
       const quaternion = new THREE.Quaternion();
       quaternion.setFromUnitVectors(
         new THREE.Vector3(0, 0, 1),
         thisPortal.normal
       );
 
-      // Update position and rotation of the physics body
       rigidBodyRef.current.setTranslation(worldPosition, true);
       rigidBodyRef.current.setRotation(quaternion, true);
     }
 
     if (!otherPortal || !portalCameraRef.current) return;
 
-    // Position the portal camera at the other portal
     const otherWorldPosition = new THREE.Vector3();
     const otherWorldQuaternion = new THREE.Quaternion();
     otherPortal.parent.localToWorld(
@@ -47,20 +66,17 @@ export function Portal({ thisPortal, otherPortal }) {
     portalCameraRef.current.quaternion.copy(otherWorldQuaternion);
 
     portalCameraRef.current.aspect = 1;
-    // portalCameraRef.current.matrixWorldInverse.copy(camera.matrixWorldInverse);
     portalCameraRef.current.updateProjectionMatrix();
   });
 
   useFrame((state) => {
     const { gl, scene } = state;
 
-    // If there's no `otherPortal`, set the portal material to black (or a placeholder texture)
     if (!otherPortal || !(portalCameraRef.current instanceof THREE.Camera)) {
-      mesh.current.material.map = null; // Render as blank (black)
+      mesh.current.material.map = null;
       return;
     }
 
-    // Render the scene through the `portalCameraRef`
     gl.setRenderTarget(renderTarget);
     gl.render(scene, portalCameraRef.current);
     gl.setRenderTarget(null);
@@ -82,7 +98,6 @@ export function Portal({ thisPortal, otherPortal }) {
 
     const playerRigidBody = payload.other.rigidBody;
 
-    // Calculate world position and rotation of the exit portal
     const { parent, position, normal } = otherPortal;
     const worldPosition = new THREE.Vector3();
     parent.localToWorld(worldPosition.copy(position));
@@ -90,7 +105,6 @@ export function Portal({ thisPortal, otherPortal }) {
     const exitQuaternion = new THREE.Quaternion();
     exitQuaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), normal);
 
-    // Calculate the player's rotation difference relative to the entry portal
     const entryPortalQuaternion = new THREE.Quaternion();
     const entryPortalNormal = thisPortal.normal;
     entryPortalQuaternion.setFromUnitVectors(
@@ -98,27 +112,23 @@ export function Portal({ thisPortal, otherPortal }) {
       entryPortalNormal
     );
 
-    const playerCameraQuaternion = camera.quaternion.clone(); // Get current camera rotation
+    const playerCameraQuaternion = camera.quaternion.clone();
     const relativeQuaternion = new THREE.Quaternion()
       .copy(entryPortalQuaternion)
       .invert()
-      .multiply(playerCameraQuaternion); // Difference between player and portal
+      .multiply(playerCameraQuaternion);
 
-    // Apply the half rotation flip (180 degrees around Y-axis)
     const flipQuaternion = new THREE.Quaternion();
     flipQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
-    // Final exit rotation = exit portal rotation + relative rotation + 180° flip
     const finalExitQuaternion = new THREE.Quaternion()
       .copy(exitQuaternion)
       .multiply(flipQuaternion)
       .multiply(relativeQuaternion);
 
-    // Position offset in portal normal direction
     const offset = new THREE.Vector3().copy(normal).multiplyScalar(0.6);
     const finalPosition = worldPosition.add(offset);
 
-    // Apply the final position and rotation to the player
     playerRigidBody.setTranslation(finalPosition, true);
     camera.quaternion.copy(finalExitQuaternion);
   };
@@ -129,22 +139,55 @@ export function Portal({ thisPortal, otherPortal }) {
         sensor
         ref={rigidBodyRef}
         type="fixed"
-        colliders="cuboid"
+        colliders={false}
         onIntersectionEnter={(payload) => teleportPlayer(payload)}
       >
         <group>
-          <mesh ref={mesh}>
-            <planeGeometry args={[2, 2]} />
-            <meshBasicMaterial />
+          <MeshCollider type="trimesh">
+            <mesh ref={mesh}>
+              <circleGeometry args={[0.8, 32]} />
+              <meshStandardMaterial />
+            </mesh>
+          </MeshCollider>
+
+          <mesh>
+            <circleGeometry args={[0.8, 32]} />
+            <meshBasicMaterial
+              transparent={true} // Enable transparency
+              opacity={0}
+            />
+
+            {/*<MeshTransmissionMaterial
+              ior={1.1}
+              thickness={9}
+              resolution={32}
+              samples={1}
+              roughness={otherPortal ? 0 : 1}
+              color="#ffd4f8"
+              backside={false}
+            />
+            */}
+
+            <Edges linewidth={2} threshold={15} color="black" />
           </mesh>
+
+          <PositionalAudio
+            autoplay
+            loop
+            url="./sounds/force_field.wav"
+            distance={0.35}
+          />
         </group>
       </RigidBody>
       <PerspectiveCamera
         ref={portalCameraRef}
         near={0.1}
-        far={100}
+        far={50}
         fov={camera.fov}
         aspect={1}
+        zoom={0.5}
+        resolution={64}
+        samples={1}
       />
     </>
   );

@@ -4,26 +4,28 @@ import { useFrame } from "@react-three/fiber";
 
 export function Wall({ position = [0, 0, 0], ...props }) {
   const rigidBodyRef = useRef();
-  const [timeOffset] = useState(() => Math.random() * Math.PI * 2); // Optional: Stagger motion with a random offset
+  const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
 
-    // Calculate smooth oscillation in Y-axis
-    const y = position[1] + Math.sin(time + timeOffset) * 2; // Amplitude of 2 units
+    const y = position[1] + Math.sin(time + timeOffset) * 2;
 
-    // Update kinematic position
-    rigidBodyRef.current.setNextKinematicTranslation({
-      x: position[0],
-      y,
-      z: position[2],
-    });
+    // Ensure rigidBodyRef.current is not null
+    if (rigidBodyRef.current) {
+      // Update kinematic position
+      rigidBodyRef.current.setNextKinematicTranslation({
+        x: position[0],
+        y,
+        z: position[2],
+      });
+    }
   });
 
   return (
     <RigidBody
       ref={rigidBodyRef}
-      type="kinematicPosition" // Kinematic for controlled motion
+      type="kinematicPosition"
       colliders="cuboid"
       {...props}
     >

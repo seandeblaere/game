@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useKeyboardControls } from "@react-three/drei";
+import { useKeyboardControls, Preload } from "@react-three/drei";
 import { CapsuleCollider, RigidBody, useRapier } from "@react-three/rapier";
 import { usePortalPlacement } from "./usePortalPlacement";
 import { Portal } from "./component/Portal";
@@ -20,14 +20,28 @@ export function Player() {
   const [portal1, setPortal1] = useState(null);
   const [portal2, setPortal2] = useState(null);
 
+  const portal1Ref = useRef(null);
+  const portal2Ref = useRef(null);
+
   const placePortal = usePortalPlacement(
     (portalType, object, localPosition, normal) => {
+      const portalData = {
+        parent: object,
+        position: localPosition,
+        normal,
+        name: portalType,
+      };
+
       if (portalType === "portal1") {
-        setPortal1({ parent: object, position: localPosition, normal });
+        setPortal1(portalData);
+        portal1Ref.current = portalData; // Update ref
       } else if (portalType === "portal2") {
-        setPortal2({ parent: object, position: localPosition, normal });
+        setPortal2(portalData);
+        portal2Ref.current = portalData; // Update ref
       }
-    }
+    },
+    portal1Ref.current,
+    portal2Ref.current
   );
 
   useEffect(() => {
@@ -56,19 +70,18 @@ export function Player() {
 
     const playerQuaternion = new THREE.Quaternion().setFromRotationMatrix(
       new THREE.Matrix4().lookAt(
-        new THREE.Vector3(0, 0, 0), // Player's "forward"
-        cameraDirection, // Direction camera is facing
-        new THREE.Vector3(0, 1, 0) // Up vector
+        new THREE.Vector3(0, 0, 0),
+        cameraDirection,
+        new THREE.Vector3(0, 1, 0)
       )
     );
 
     player.current.setRotation(playerQuaternion, true);
 
     const velocity = player.current.linvel();
-    // update camera
+
     state.camera.position.copy(player.current.translation());
 
-    // movement
     frontVector.set(0, 0, backward - forward);
     sideVector.set(left - right, 0, 0);
     direction
@@ -78,7 +91,6 @@ export function Player() {
       .applyEuler(state.camera.rotation);
     player.current.setLinvel({ x: direction.x, y: velocity.y, z: direction.z });
 
-    //jump
     const ray = world.castRay(
       new rapier.Ray(player.current.translation(), { x: 0, y: -1, z: 0 })
     );
@@ -100,22 +112,8 @@ export function Player() {
       >
         <CapsuleCollider args={[0.75, 0.5]} />
       </RigidBody>
-      {portal1 && (
-        <Portal
-          thisPortal={portal1}
-          otherPortal={portal2}
-          color="blue"
-          name="Portal1"
-        />
-      )}
-      {portal2 && (
-        <Portal
-          thisPortal={portal2}
-          otherPortal={portal1}
-          color="red"
-          name="Portal2"
-        />
-      )}
+      {portal1 && <Portal thisPortal={portal1} otherPortal={portal2} />}
+      {portal2 && <Portal thisPortal={portal2} otherPortal={portal1} />}
     </>
   );
 }

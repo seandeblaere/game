@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
+import { Edges, Outlines } from "@react-three/drei";
 
 export function Ground(props) {
   return (
-    <RigidBody {...props} type="fixed" colliders={false}>
+    <RigidBody {...props} type="fixed" collider="cuboid">
       <mesh
         receiveShadow
         position={[0, 0, 0]}
@@ -12,9 +13,10 @@ export function Ground(props) {
       >
         <planeGeometry args={[200, 200]} />
 
-        <meshStandardMaterial color="greenyellow" />
+        <meshStandardMaterial color="white" />
+        <Edges linewidth={2} threshold={15} color="black" />
+        <Outlines thickness={1} color="black" />
       </mesh>
-      <CuboidCollider args={[20, 2, 20]} position={[0, -2, 0]} />
     </RigidBody>
   );
 }
