@@ -194,6 +194,24 @@ export function Portal({ thisPortal, otherPortal, dpr }) {
     }
 
     if (thisPortal.normal.y === 0 && normal.y !== 0) {
+      const entryQuaternion = new THREE.Quaternion();
+      entryQuaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1), // Local forward vector
+        thisPortal.normal // Exit portal's normal vector (indicates its "forward" direction)
+      );
+
+      const playerCameraQuaternion = camera.quaternion.clone();
+
+      const relativeQuaternion = new THREE.Quaternion()
+        .copy(entryQuaternion)
+        .invert() // Invert the entry portal's rotation to get the relative offset
+        .multiply(playerCameraQuaternion);
+
+      // Combine the exit portal's rotation, the flip, and the relative rotation
+      const finalExitQuaternion = new THREE.Quaternion()
+        .copy(entryQuaternion) // Start with the exit portal's orientation
+        .multiply(relativeQuaternion);
+
       // Compute a small offset to ensure the player doesn't get stuck in the portal
       const offset = new THREE.Vector3()
         .copy(normal) // Use the portal's normal to determine the direction of the offset
@@ -203,6 +221,7 @@ export function Portal({ thisPortal, otherPortal, dpr }) {
       const finalPosition = worldPosition.add(offset);
 
       playerRigidBody.setTranslation(finalPosition, true);
+      camera.quaternion.copy(finalExitQuaternion);
     }
 
     if (thisPortal.normal.y !== 0 && normal.y === 0) {
