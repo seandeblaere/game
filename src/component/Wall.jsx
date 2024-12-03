@@ -29,8 +29,8 @@ export function Wall({ position = [0, 0, 0], ...props }) {
       colliders="cuboid"
       {...props}
     >
-      <mesh castShadow receiveShadow name="wall">
-        <boxGeometry args={[2, 2, 2]} />
+      <mesh castShadow receiveShadow name="wall" rotation={[Math.PI, 0, 0]}>
+        <planeGeometry args={[2, 2]} />
         <meshStandardMaterial color="red" />
       </mesh>
     </RigidBody>

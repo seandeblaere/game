@@ -46,12 +46,18 @@ export function usePortalPlacement(onPortalPlace, portal1, portal2) {
         const localPoint = object.worldToLocal(point.clone());
         const faceNormal = face.normal.clone();
 
-        const offsetPosition = localPoint.addScaledVector(faceNormal, 0.05);
+        const offsetPosition = localPoint.addScaledVector(faceNormal, 0.01);
 
         const portalType = isPortal1Active ? "portal1" : "portal2";
 
-        const proximity = checkProximity(portalType, offsetPosition);
-        if (!proximity) return;
+        /* const proximity = checkProximity(portalType, offsetPosition);
+        if (!proximity) return; */
+
+        console.log(faceNormal);
+        const worldNormal = faceNormal
+          .applyQuaternion(object.quaternion)
+          .normalize();
+        console.log(worldNormal);
 
         onPortalPlace(portalType, object, offsetPosition, faceNormal);
       }

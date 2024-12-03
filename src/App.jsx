@@ -14,12 +14,14 @@ import { Ground } from "./component/Ground";
 import { Cube } from "./component/Cube";
 import { Wall } from "./component/Wall";
 import { Player } from "./Player";
+import { Gun } from "./component/Railgun";
 import { Leva } from "leva";
 import { Perf } from "r3f-perf";
 
 export function App() {
   const [dpr, setDpr] = useState(2);
   const [factor, setFactor] = useState(0.5);
+
   return (
     <>
       <Leva collapsed />
@@ -46,11 +48,18 @@ export function App() {
           <PerformanceMonitor
             factor={factor}
             bounds={(refreshrate) => (refreshrate > 90 ? [45, 80] : [45, 55])}
-            onIncline={() => setDpr(Math.min(dpr + 0.3, 2))}
-            onDecline={() => setDpr(Math.max(dpr - 0.3, 0.5))}
+            onIncline={() => {
+              setDpr(Math.min(dpr + 0.3, 2));
+              console.log("Performance improved");
+            }}
+            onDecline={() => {
+              setDpr(Math.max(dpr - 0.3, 0.5));
+              console.log("Performance declined");
+            }}
             onChange={({ factor }) => {
               setFactor(factor);
               setDpr(Math.floor(0.5 + 1.5 * factor));
+              console.log(`Performance changed, factor: ${factor}`);
             }}
             flipflops={2}
             onFallback={() => setDpr(0.5)}
@@ -85,7 +94,7 @@ export function App() {
           </Bvh>
           <PointerLockControls />
         </Canvas>
-      </KeyboardControls>{" "}
+      </KeyboardControls>
     </>
   );
 }

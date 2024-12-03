@@ -9,31 +9,59 @@ import {
   MeshReflectorMaterial,
   ContactShadows,
   Edges,
-  Outlines,
   PositionalAudio,
-  Preload,
 } from "@react-three/drei";
 import { easing } from "maath";
 
-export function Portal({ thisPortal, otherPortal }) {
+export function Portal({ thisPortal, otherPortal, dpr }) {
   const rigidBodyRef = useRef();
   const portalCameraRef = useRef();
   const mesh = useRef();
-  const renderTarget = useFBO({ depthBuffer: false, stencilBuffer: false });
+  const renderTarget = useFBO({
+    stencilBuffer: false,
+    resolution: 32 * dpr,
+  });
   const { camera } = useThree();
   const [cooldown, setCooldown] = useState(false);
-  const roughnessRef = useRef(0);
+  const bRef = useRef(0.5);
+  const gRef = useRef(0.5);
+  const material = useRef();
+  const [btarget, setBTarget] = useState(1);
+  const [gtarget, setGTarget] = useState(1);
 
-  /* const roughness = useFrame((_, delta) => {
-    // Target roughness based on whether otherPortal exists
-    const targetRoughness = 1;
+  useFrame((_, delta) => {
+    if (Math.abs(bRef.current - btarget) < 0.01) {
+      setBTarget(btarget === 1 ? 0 : 1); // Toggle the target between 0 and 1
+    }
+    // Smoothly interpolate valueRef.current towards the target
+    bRef.current = THREE.MathUtils.lerp(bRef.current, btarget, delta * 0.5);
 
-    // Smoothly animate roughness toward the target value
-    easing.damp(roughnessRef.current, "value", targetRoughness, 0.2, delta);
+    material.current.material.color.b = bRef.current;
+  });
 
-    // Update the material roughness
-    console.log("Roughness:", roughnessRef.current);
-  }); */
+  useFrame((_, delta) => {
+    if (Math.abs(gRef.current - gtarget) < 0.01) {
+      setGTarget(gtarget === 1 ? 0 : 1); // Toggle the target between 0 and 1
+    }
+    // Smoothly interpolate valueRef.current towards the target
+    gRef.current = THREE.MathUtils.lerp(gRef.current, gtarget, delta * 1);
+
+    material.current.material.color.g = gRef.current;
+  });
+
+  useEffect(() => {
+    if (!portalCameraRef.current) return;
+    portalCameraRef.current.layers.disable(3);
+    if (thisPortal.name == "portal1") {
+      portalCameraRef.current.layers.disable(1);
+      portalCameraRef.current.layers.enable(2);
+    }
+
+    if (thisPortal.name == "portal2") {
+      portalCameraRef.current.layers.disable(2);
+      portalCameraRef.current.layers.enable(1);
+    }
+  }, []);
 
   useFrame(() => {
     if (rigidBodyRef.current) {
@@ -85,52 +113,131 @@ export function Portal({ thisPortal, otherPortal }) {
   });
 
   const teleportPlayer = (payload) => {
+    // Check if the colliding object is the player
     const isPlayer = payload.other.rigidBodyObject?.name === "Player";
     if (!isPlayer || !otherPortal) {
       console.log("No other portal");
-      return;
+      return; // If not the player or there is no destination portal, do nothing
     }
 
+    // Prevent multiple teleports in quick succession using a cooldown
     if (cooldown) return;
 
-    setCooldown(true);
-    setTimeout(() => setCooldown(false), 500);
+    setCooldown(true); // Activate the cooldown
+    setTimeout(() => setCooldown(false), 5000); // Cooldown lasts for 500ms
 
+    // Get the player's rigid body, which is used to control their physics properties
     const playerRigidBody = payload.other.rigidBody;
 
+    // Extract the parent, position, and normal of the exit portal
     const { parent, position, normal } = otherPortal;
+
+    // Compute the world position of the exit portal
     const worldPosition = new THREE.Vector3();
-    parent.localToWorld(worldPosition.copy(position));
+    parent.localToWorld(worldPosition.copy(position)); // Transform local position to world coordinates
 
-    const exitQuaternion = new THREE.Quaternion();
-    exitQuaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), normal);
+    // Debug: Log the vertical component of the portal normals for analysis
+    if (thisPortal.normal.y === 0 && normal.y === 0) {
+      // Create a quaternion that represents the rotation of the exit portal
+      const exitQuaternion = new THREE.Quaternion();
+      exitQuaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1), // Local forward vector
+        normal // Exit portal's normal vector (indicates its "forward" direction)
+      );
 
-    const entryPortalQuaternion = new THREE.Quaternion();
-    const entryPortalNormal = thisPortal.normal;
-    entryPortalQuaternion.setFromUnitVectors(
-      new THREE.Vector3(0, 0, -1),
-      entryPortalNormal
-    );
+      console.log(exitQuaternion);
 
-    const playerCameraQuaternion = camera.quaternion.clone();
-    const relativeQuaternion = new THREE.Quaternion()
-      .copy(entryPortalQuaternion)
-      .invert()
-      .multiply(playerCameraQuaternion);
+      // Create a quaternion that represents the rotation of the entry portal
+      const entryPortalQuaternion = new THREE.Quaternion();
+      const entryPortalNormal = thisPortal.normal;
+      entryPortalQuaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1), // Local forward vector
+        entryPortalNormal // Entry portal's normal vector
+      );
 
-    const flipQuaternion = new THREE.Quaternion();
-    flipQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+      console.log(entryPortalQuaternion);
 
-    const finalExitQuaternion = new THREE.Quaternion()
-      .copy(exitQuaternion)
-      .multiply(flipQuaternion)
-      .multiply(relativeQuaternion);
+      // Capture the current rotation of the camera (the player's view)
+      const playerCameraQuaternion = camera.quaternion.clone();
 
-    const offset = new THREE.Vector3().copy(normal).multiplyScalar(0.6);
-    const finalPosition = worldPosition.add(offset);
+      // Calculate the relative rotation from the entry portal to the camera's orientation
+      const relativeQuaternion = new THREE.Quaternion()
+        .copy(entryPortalQuaternion)
+        .invert() // Invert the entry portal's rotation to get the relative offset
+        .multiply(playerCameraQuaternion); // Combine with the player's current rotation
 
-    playerRigidBody.setTranslation(finalPosition, true);
-    camera.quaternion.copy(finalExitQuaternion);
+      // Create a quaternion for a 180-degree flip (used for portals to maintain proper facing)
+      const flipQuaternion = new THREE.Quaternion();
+      flipQuaternion.setFromAxisAngle(
+        new THREE.Vector3(0, 1, 0), // Y-axis rotation (horizontal flip)
+        Math.PI // Rotate by 180 degrees
+      );
+
+      // Combine the exit portal's rotation, the flip, and the relative rotation
+      const finalExitQuaternion = new THREE.Quaternion()
+        .copy(exitQuaternion) // Start with the exit portal's orientation
+        .multiply(flipQuaternion) // Apply the flip
+        .multiply(relativeQuaternion); // Apply the player's relative rotation
+
+      // Compute a small offset to ensure the player doesn't get stuck in the portal
+      const offset = new THREE.Vector3()
+        .copy(normal) // Use the portal's normal to determine the direction of the offset
+        .multiplyScalar(0.6); // Offset by 0.6 units along the normal
+
+      // Calculate the final position for the player after teleportation
+      const finalPosition = worldPosition.add(offset); // Add the offset to the exit portal's position
+
+      // Teleport the player to the final position
+      playerRigidBody.setTranslation(finalPosition, true); // Update the player's position
+      // Update the player's camera rotation to match the final computed orientation
+      camera.quaternion.copy(finalExitQuaternion);
+    }
+
+    if (thisPortal.normal.y === 0 && normal.y !== 0) {
+      // Compute a small offset to ensure the player doesn't get stuck in the portal
+      const offset = new THREE.Vector3()
+        .copy(normal) // Use the portal's normal to determine the direction of the offset
+        .multiplyScalar(4); // Offset by 0.6 units along the normal
+
+      // Calculate the final position for the player after teleportation
+      const finalPosition = worldPosition.add(offset);
+
+      playerRigidBody.setTranslation(finalPosition, true);
+    }
+
+    if (thisPortal.normal.y !== 0 && normal.y === 0) {
+      console.log("test");
+      const exitQuaternion = new THREE.Quaternion();
+      exitQuaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1), // Local forward vector
+        normal // Exit portal's normal vector (indicates its "forward" direction)
+      );
+
+      const playerCameraQuaternion = camera.quaternion.clone();
+
+      const relativeQuaternion = new THREE.Quaternion()
+        .copy(exitQuaternion)
+        .invert() // Invert the entry portal's rotation to get the relative offset
+        .multiply(playerCameraQuaternion);
+
+      console.log(relativeQuaternion);
+
+      // Combine the exit portal's rotation, the flip, and the relative rotation
+      const finalExitQuaternion = new THREE.Quaternion()
+        .copy(exitQuaternion) // Start with the exit portal's orientation
+        .multiply(relativeQuaternion);
+
+      // Compute a small offset to ensure the player doesn't get stuck in the portal
+      const offset = new THREE.Vector3()
+        .copy(normal) // Use the portal's normal to determine the direction of the offset
+        .multiplyScalar(0.6); // Offset by 0.6 units along the normal
+
+      // Calculate the final position for the player after teleportation
+      const finalPosition = worldPosition.add(offset);
+
+      playerRigidBody.setTranslation(finalPosition, true);
+      camera.quaternion.copy(finalExitQuaternion);
+    }
   };
 
   return (
@@ -144,31 +251,37 @@ export function Portal({ thisPortal, otherPortal }) {
       >
         <group>
           <MeshCollider type="trimesh">
-            <mesh ref={mesh}>
+            <mesh ref={mesh} layers={thisPortal.name == "portal1" ? 1 : 2}>
               <circleGeometry args={[1.2, 32]} />
               <meshStandardMaterial />
             </mesh>
           </MeshCollider>
 
-          <mesh>
+          <mesh ref={material} layers={thisPortal.name == "portal1" ? 1 : 2}>
             <circleGeometry args={[1.2, 32]} />
-            <meshBasicMaterial
-              transparent={true} // Enable transparency
-              opacity={0}
-            />
+            <meshBasicMaterial transparent={true} opacity={0} />
 
-            {/*<MeshTransmissionMaterial
-              ior={1.1}
-              thickness={9}
-              resolution={32}
-              samples={1}
-              roughness={otherPortal ? 0 : 1}
-              color="#ffd4f8"
-              backside={false}
-            />
-            */}
+            {!otherPortal && (
+              <MeshTransmissionMaterial
+                ior={3}
+                thickness={9}
+                resolution={32}
+                samples={1}
+                roughness={0.2}
+                distortion={4}
+                distortionScale={2}
+                temporalDistortion={0.4}
+                backside={false}
+                chromaticAberration={10}
+              />
+            )}
 
-            <Edges linewidth={2} threshold={15} color="black" />
+            <Edges
+              layers={thisPortal.name == "portal1" ? 1 : 2}
+              linewidth={2}
+              threshold={15}
+              color="black"
+            />
           </mesh>
 
           <PositionalAudio
@@ -186,8 +299,8 @@ export function Portal({ thisPortal, otherPortal }) {
         fov={camera.fov}
         aspect={1}
         zoom={0.45}
-        resolution={64}
-        samples={1}
+        resolution={32 * dpr}
+        samples={Math.ceil(dpr)}
       />
     </>
   );
