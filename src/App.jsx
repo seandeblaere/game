@@ -14,7 +14,7 @@ import { Ground } from "./component/Ground";
 import { Cube } from "./component/Cube";
 import { Wall } from "./component/Wall";
 import { Player } from "./Player";
-import { Gun } from "./component/Railgun";
+import { JumpPad } from "./component/JumpPad";
 import { Leva } from "leva";
 import { Perf } from "r3f-perf";
 
@@ -90,6 +90,7 @@ export function App() {
               <Cube />
               <Wall />
               <Player />
+              <JumpPad />
             </Physics>
           </Bvh>
           <PointerLockControls />

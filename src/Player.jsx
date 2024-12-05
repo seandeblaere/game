@@ -34,26 +34,29 @@ export function Player() {
   const portal2Ref = useRef(null);
   const { camera } = useThree();
 
+  const cooldownRef = useRef(0);
+
   useEffect(() => {
     camera.layers.enableAll();
     console.log("Camera layers enabled for all.");
   }, [camera]);
 
   const placePortal = usePortalPlacement(
-    (portalType, object, localPosition, normal) => {
+    (portalType, object, localPosition, normal, worldNormal) => {
       const portalData = {
         parent: object,
         position: localPosition,
         normal,
+        worldNormal,
         name: portalType,
       };
 
       if (portalType === "portal1") {
         setPortal1(portalData);
-        portal1Ref.current = portalData; // Update ref
+        portal1Ref.current = portalData;
       } else if (portalType === "portal2") {
         setPortal2(portalData);
-        portal2Ref.current = portalData; // Update ref
+        portal2Ref.current = portalData;
       }
     },
     portal1Ref.current,
@@ -126,29 +129,28 @@ export function Player() {
     if (jump && grounded) player.current.setLinvel({ x: 0, y: 7.5, z: 0 });
 
     if (gun.current && gun.current.children && gun.current.children[0]) {
-      // Adjust the rotation axis to avoid flipping the gun
       gun.current.children[0].rotation.z = THREE.MathUtils.lerp(
-        gun.current.children[0].rotation.z, // Current Z rotation
-        Math.sin(isMoving * grounded * state.clock.elapsedTime * 7) / 30, // Oscillation for sideways rotation
+        gun.current.children[0].rotation.z,
+        Math.sin(isMoving * grounded * state.clock.elapsedTime * 7) / 30,
         0.1
       );
 
       gun.current.children[0].position.x = THREE.MathUtils.lerp(
-        gun.current.children[0].position.x, // Current Z rotation
-        Math.sin(isMoving * grounded * state.clock.elapsedTime * 7) / 45 + 0.25, // Oscillation for sideways rotation
-        0.1 // Smoothing factor
+        gun.current.children[0].position.x,
+        Math.sin(isMoving * grounded * state.clock.elapsedTime * 7) / 45 + 0.25,
+        0.1
       );
 
       gun.current.children[0].rotation.x = THREE.MathUtils.lerp(
-        gun.current.children[0].rotation.x, // Current Z rotation
-        !grounded * 0.12, // Oscillation for sideways rotation
-        0.07 // Smoothing factor
+        gun.current.children[0].rotation.x,
+        !grounded * 0.12,
+        0.07
       );
 
       gun.current.children[0].position.z = THREE.MathUtils.lerp(
-        gun.current.children[0].position.z, // Current Z rotation
-        0.33, // Oscillation for sideways rotation
-        0.5 // Smoothing factor
+        gun.current.children[0].position.z,
+        0.33,
+        0.5
       );
 
       gun.current.rotation.copy(state.camera.rotation);
@@ -187,10 +189,20 @@ export function Player() {
         onFallback={() => setDpr(0.5)}
       >
         {portal1 && (
-          <Portal thisPortal={portal1} otherPortal={portal2} dpr={dpr} />
+          <Portal
+            thisPortal={portal1}
+            otherPortal={portal2}
+            dpr={dpr}
+            sharedCooldown={cooldownRef}
+          />
         )}
         {portal2 && (
-          <Portal thisPortal={portal2} otherPortal={portal1} dpr={dpr} />
+          <Portal
+            thisPortal={portal2}
+            otherPortal={portal1}
+            dpr={dpr}
+            sharedCooldown={cooldownRef}
+          />
         )}
       </PerformanceMonitor>
     </>
