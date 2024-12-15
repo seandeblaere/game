@@ -7,31 +7,72 @@ Title: SM_JumpPad
 */
 
 import React, { useRef } from "react";
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, Edges } from "@react-three/drei";
+import * as THREE from "three";
+import TOON_TONE from "../assets/textures/threeTone.jpg";
+import { RigidBody, MeshCollider, CuboidCollider } from "@react-three/rapier";
+import { ToonMaterial } from "../material/ToonMaterial";
 
 export function JumpPad(props) {
   const { nodes, materials } = useGLTF("../assets/sm_jumppad.glb");
+
+  const jump = (payload) => {
+    const isPlayer = payload.other.rigidBodyObject?.name === "Player";
+    if (!isPlayer) return;
+
+    const playerRigidBody = payload.other.rigidBody;
+
+    const currentVelocity = playerRigidBody.linvel();
+
+    const newVelocity = { x: currentVelocity.x, y: 15, z: currentVelocity.z };
+
+    playerRigidBody.setLinvel(newVelocity, true);
+  };
+
   return (
-    <group {...props} dispose={null}>
-      <group scale={0.025}>
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.JumpPad_M_JumpPad_0.geometry}
-          material={materials.M_JumpPad}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={50}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.JumpPadBeam_M_JumpPadBeam_0.geometry}
-          material={materials.M_JumpPadBeam}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={50}
-        />
-      </group>
-    </group>
+    <>
+      <RigidBody colliders={false} type="fixed">
+        <group {...props} dispose={null}>
+          <group scale={0.025}>
+            <MeshCollider type="hull">
+              <mesh
+                castShadow
+                receiveShadow
+                geometry={nodes.JumpPad_M_JumpPad_0.geometry}
+                rotation={[-Math.PI / 2, 0, 0]}
+                scale={50}
+              >
+                <ToonMaterial color={"#FFABAB"} />
+                <Edges linewidth={1} threshold={25} color="black" />
+              </mesh>
+            </MeshCollider>
+
+            <mesh
+              geometry={nodes.JumpPadBeam_M_JumpPadBeam_0.geometry}
+              rotation={[-Math.PI / 2, 0, 0]}
+              scale={50}
+            >
+              <ToonMaterial transparent={true} opacity={0.5} color="#FFE3A9" />
+              <Edges
+                linewidth={1}
+                threshold={15}
+                transparent={true}
+                opacity={0.5}
+                color="#FFE3A9"
+              />
+            </mesh>
+          </group>
+        </group>
+      </RigidBody>
+
+      <RigidBody
+        sensor
+        type="fixed"
+        onIntersectionEnter={(payload) => jump(payload)}
+      >
+        <CuboidCollider args={[0.65, 0.001, 0.65]} position={[0, 0.52, 0]} />
+      </RigidBody>
+    </>
   );
 }
 

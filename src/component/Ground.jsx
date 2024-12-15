@@ -1,6 +1,5 @@
-import * as THREE from "three";
-import { CuboidCollider, RigidBody } from "@react-three/rapier";
-import { Edges, Outlines } from "@react-three/drei";
+import { RigidBody } from "@react-three/rapier";
+import { ToonMaterial } from "../material/ToonMaterial";
 
 export function Ground(props) {
   return (
@@ -12,10 +11,7 @@ export function Ground(props) {
         name="ground"
       >
         <planeGeometry args={[200, 200]} />
-
-        <meshStandardMaterial color="white" />
-        <Edges linewidth={2} threshold={15} color="black" />
-        <Outlines thickness={1} color="black" />
+        <ToonMaterial />
       </mesh>
     </RigidBody>
   );

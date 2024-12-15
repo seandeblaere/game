@@ -11,9 +11,7 @@ export function Wall({ position = [0, 0, 0], ...props }) {
 
     const y = position[1] + Math.sin(time + timeOffset) * 2;
 
-    // Ensure rigidBodyRef.current is not null
     if (rigidBodyRef.current) {
-      // Update kinematic position
       rigidBodyRef.current.setNextKinematicTranslation({
         x: position[0],
         y,
@@ -30,7 +28,7 @@ export function Wall({ position = [0, 0, 0], ...props }) {
       {...props}
     >
       <mesh castShadow receiveShadow name="wall" rotation={[Math.PI, 0, 0]}>
-        <planeGeometry args={[2, 2]} />
+        <planeGeometry args={[5, 5]} />
         <meshStandardMaterial color="red" />
       </mesh>
     </RigidBody>
