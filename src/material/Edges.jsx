@@ -19,13 +19,19 @@ function VisibleEdges({
 
     if (otherParent) {
       distance = camera.position.distanceTo(parentPosition);
+      console.log(parentPosition);
+      console.log(distance);
     }
 
     if (distance > far) {
       edgeRef.current.visible = false;
     } else {
       edgeRef.current.visible = true;
-      edgeRef.current.material.linewidth = baseLineWidth / (distance * 1.2);
+      const proportionalWidth = baseLineWidth / (distance * 1.2);
+
+      edgeRef.current.material.linewidth = otherParent
+        ? Math.min(proportionalWidth, baseLineWidth / 4)
+        : proportionalWidth;
     }
   });
 

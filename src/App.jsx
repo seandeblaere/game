@@ -6,6 +6,7 @@ import { Cube } from "./component/Cube";
 import { Wall } from "./component/Wall";
 import { Player } from "./component/Player";
 import { JumpPad } from "./component/JumpPad";
+import { Button } from "./component/Button";
 import { Box } from "./component/Box";
 import { Performance } from "./performance/Performance";
 import { Leva } from "leva";
@@ -35,6 +36,7 @@ export function App() {
               <Player />
               <JumpPad />
               <Box />
+              <Button />
             </Physics>
           </Bvh>
           <PointerLockControls />

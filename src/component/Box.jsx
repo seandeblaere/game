@@ -13,6 +13,7 @@ export function Box(props) {
   const currentPositionRef = useRef(new THREE.Vector3());
   const [isHeld, setIsHeld] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [name, setName] = useState("Box");
   const [inCollision, setInCollision] = useState(false);
   const { camera } = useThree();
 
@@ -30,9 +31,11 @@ export function Box(props) {
     if (isHeld) {
       if (getKeys().pickUp && !inCollision) {
         setIsHeld(false);
+        setName("Box");
       }
     } else if (isHovered && distanceToCube <= MIN_PICKUP_DISTANCE) {
       setIsHeld(true);
+      setName("AttachedBox");
     }
   };
 
@@ -40,8 +43,11 @@ export function Box(props) {
     if (getKeys().pickUp || getKeys().release) {
       handlePickupOrRelease();
     }
+    if (cubeRef.current) {
+      cubeRef.current.name = name;
+    }
 
-    if (isHeld && cubeRef.current) {
+    if (isHeld) {
       const offset = new THREE.Vector3(0, -0.25, -2).applyQuaternion(
         camera.quaternion
       );
@@ -73,7 +79,7 @@ export function Box(props) {
       ref={cubeRef}
       colliders={false}
       type="dynamic"
-      name="Box"
+      name={name}
       position={[3, 2, 2]}
       onPointerOver={() => setIsHovered(true)}
       onPointerOut={() => setIsHovered(false)}
@@ -96,7 +102,9 @@ export function Box(props) {
               color="black"
               threshold={30}
               otherParent={true}
-              parentPosition={currentPositionRef.current}
+              parentPosition={
+                cubeRef.current?.translation() || currentPositionRef.current
+              }
             />
           </mesh>
 
