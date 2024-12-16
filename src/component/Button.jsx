@@ -8,25 +8,31 @@ Title: button
 
 import React, { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
+import { ToonMaterial } from "../material/ToonMaterial";
+import VisibleEdges from "../material/Edges";
 
 export function Button(props) {
   const { nodes, materials } = useGLTF("/../assets/button.glb");
   return (
-    <group {...props} dispose={null} position={[2, 0, 6]} scale={0.4}>
+    <group {...props} dispose={null} position={[2, 0.07, 6]} scale={0.4}>
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.pCylinder9_defaultPolygonShader_0.geometry}
-        material={materials.defaultPolygonShader}
         scale={0.01}
-      />
+      >
+        <ToonMaterial color={"#d8f5b8"} />
+        <VisibleEdges color="black" threshold={5} baseLineWidth={5} />
+      </mesh>
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.pCylinder10_defaultPolygonShader_0.geometry}
-        material={materials.defaultPolygonShader}
         scale={0.01}
-      />
+      >
+        <ToonMaterial color={"#ff6152"} />
+        <VisibleEdges color="black" threshold={5} baseLineWidth={5} />
+      </mesh>
     </group>
   );
 }

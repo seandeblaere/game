@@ -33,7 +33,7 @@ export function JumpPad(props) {
   return (
     <>
       <RigidBody colliders={false} type="fixed">
-        <group {...props} dispose={null}>
+        <group {...props} dispose={null} position={[0, 0.07, 0]}>
           <group scale={0.025}>
             <MeshCollider type="hull">
               <mesh

@@ -41,6 +41,7 @@ function VisibleEdges({
       color={color}
       threshold={threshold}
       lineWidth={baseLineWidth}
+      layers={3}
     />
   );
 }
