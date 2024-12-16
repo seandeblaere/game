@@ -5,6 +5,7 @@ export const KEYS = [
   { name: "right", keys: ["ArrowRight", "KeyD"] },
   { name: "jump", keys: ["Space"] },
   { name: "switch", keys: ["KeyF"] },
+  { name: "pickUp", keys: ["KeyR"] },
 ];
 
 export const CANVAS_PROPS = {

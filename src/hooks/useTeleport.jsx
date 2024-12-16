@@ -8,7 +8,8 @@ const useTeleport = ({ playerName = "Player", camera }) => {
     sharedCooldown,
   }) => {
     const isPlayer = payload.other.rigidBodyObject?.name === playerName;
-    if (!isPlayer || !otherPortal) {
+    const isCube = payload.other.rigidBodyObject?.name === "Box";
+    if (!(isPlayer || isCube) || !otherPortal) {
       return;
     }
 
@@ -84,7 +85,9 @@ const useTeleport = ({ playerName = "Player", camera }) => {
         .multiplyScalar(speed);
 
       playerRigidBody.setLinvel(newVelocity, true);
-      camera.quaternion.copy(finalQuaternion);
+      if (isPlayer) {
+        camera.quaternion.copy(finalQuaternion);
+      }
     };
 
     if (thisPortal.worldNormal.y === 0 && worldNormal.y === 0) {

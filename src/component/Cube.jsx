@@ -1,7 +1,7 @@
 import { RigidBody } from "@react-three/rapier";
 import { useRef } from "react";
-import { Edges } from "@react-three/drei";
 import { ToonMaterial } from "../material/ToonMaterial";
+import VisibleEdges from "../material/Edges";
 
 export function Cube(props) {
   const cubeRef = useRef();
@@ -18,7 +18,7 @@ export function Cube(props) {
         >
           <boxGeometry args={[4, 4, 4]} />
           <ToonMaterial color={"#A2D5F2"} />
-          <Edges linewidth={1} threshold={15} color="black" />
+          <VisibleEdges color="black" threshold={15} baseLineWidth={15} />
         </mesh>
       </RigidBody>
     </>

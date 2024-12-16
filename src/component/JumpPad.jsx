@@ -9,16 +9,17 @@ Title: SM_JumpPad
 import React, { useRef } from "react";
 import { useGLTF, Edges } from "@react-three/drei";
 import * as THREE from "three";
-import TOON_TONE from "../assets/textures/threeTone.jpg";
 import { RigidBody, MeshCollider, CuboidCollider } from "@react-three/rapier";
 import { ToonMaterial } from "../material/ToonMaterial";
+import VisibleEdges from "../material/Edges";
 
 export function JumpPad(props) {
   const { nodes, materials } = useGLTF("../assets/sm_jumppad.glb");
 
   const jump = (payload) => {
     const isPlayer = payload.other.rigidBodyObject?.name === "Player";
-    if (!isPlayer) return;
+    const isCube = payload.other.rigidBodyObject?.name === "Box";
+    if (!(isPlayer || isCube)) return;
 
     const playerRigidBody = payload.other.rigidBody;
 
@@ -43,7 +44,7 @@ export function JumpPad(props) {
                 scale={50}
               >
                 <ToonMaterial color={"#FFABAB"} />
-                <Edges linewidth={1} threshold={25} color="black" />
+                <VisibleEdges color="black" threshold={25} baseLineWidth={8} />
               </mesh>
             </MeshCollider>
 

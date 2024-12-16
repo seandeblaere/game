@@ -12,6 +12,7 @@ import {
 } from "@react-three/drei";
 import useTeleport from "../hooks/useTeleport";
 import animateMaterialColor from "../utils/animateMaterialColor";
+import VisibleEdges from "../material/Edges";
 
 export function Portal({ thisPortal, otherPortal, dpr, sharedCooldown }) {
   const rigidBodyRef = useRef();
@@ -159,6 +160,7 @@ export function Portal({ thisPortal, otherPortal, dpr, sharedCooldown }) {
                 chromaticAberration={10}
               />
             )}
+            <VisibleEdges color="black" threshold={25} baseLineWidth={8} />
           </mesh>
         </group>
       </RigidBody>
