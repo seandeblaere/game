@@ -19,8 +19,6 @@ function VisibleEdges({
 
     if (otherParent) {
       distance = camera.position.distanceTo(parentPosition);
-      console.log(parentPosition);
-      console.log(distance);
     }
 
     if (distance > far) {

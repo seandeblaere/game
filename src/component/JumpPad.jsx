@@ -66,11 +66,7 @@ export function JumpPad(props) {
         </group>
       </RigidBody>
 
-      <RigidBody
-        sensor
-        type="fixed"
-        onIntersectionEnter={(payload) => jump(payload)}
-      >
+      <RigidBody type="fixed" onCollisionEnter={(payload) => jump(payload)}>
         <CuboidCollider args={[0.65, 0.001, 0.65]} position={[0, 0.52, 0]} />
       </RigidBody>
     </>

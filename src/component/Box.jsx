@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { ToonMaterial } from "../material/ToonMaterial";
 import VisibleEdges from "../material/Edges";
@@ -10,18 +10,32 @@ import { useKeyboardControls } from "@react-three/drei";
 export function Box(props) {
   const { nodes } = useGLTF("/../assets/generator3.glb");
   const cubeRef = useRef();
+  const collisionRef = useRef();
   const currentPositionRef = useRef(new THREE.Vector3());
   const [isHeld, setIsHeld] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [name, setName] = useState("Box");
   const [inCollision, setInCollision] = useState(false);
   const { camera } = useThree();
+  const [dominance, setDominance] = useState(false);
 
   const [, getKeys] = useKeyboardControls();
 
   const MIN_PICKUP_DISTANCE = 5;
   const floatAmplitude = 0.01;
   const floatSpeed = 0.8;
+
+  const addDominance = (payload) => {
+    const isPlayer = payload.other.rigidBodyObject?.name === "Player";
+    if (!isPlayer) return;
+    setDominance(true);
+  };
+
+  const removeDominance = (payload) => {
+    const isPlayer = payload.other.rigidBodyObject?.name === "Player";
+    if (!isPlayer) return;
+    setDominance(false);
+  };
 
   const handlePickupOrRelease = () => {
     const distanceToCube = camera.position.distanceTo(
@@ -43,12 +57,12 @@ export function Box(props) {
     if (getKeys().pickUp || getKeys().release) {
       handlePickupOrRelease();
     }
-    if (cubeRef.current) {
-      cubeRef.current.name = name;
-    }
+    if (!cubeRef.current) return;
+
+    cubeRef.current.name = name;
 
     if (isHeld) {
-      const offset = new THREE.Vector3(0, -0.25, -2).applyQuaternion(
+      const offset = new THREE.Vector3(0, 0, -2).applyQuaternion(
         camera.quaternion
       );
       const targetPosition = camera.position.clone().add(offset);
@@ -62,6 +76,7 @@ export function Box(props) {
 
       cubeRef.current.setTranslation(smoothedPosition, true);
       cubeRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      cubeRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
 
       const floatingOffset =
         Math.sin(Date.now() * 0.003 * floatSpeed) * floatAmplitude;
@@ -71,6 +86,12 @@ export function Box(props) {
 
       cubeRef.current.setTranslation(finalPosition, true);
       currentPositionRef.current.copy(finalPosition);
+    }
+
+    if (dominance && isHeld) {
+      cubeRef.current.setDominanceGroup(-127);
+    } else {
+      cubeRef.current.setDominanceGroup(0);
     }
   });
 
@@ -83,11 +104,13 @@ export function Box(props) {
       position={[3, 2, 2]}
       onPointerOver={() => setIsHovered(true)}
       onPointerOut={() => setIsHovered(false)}
-      onCollisionEnter={() => {
+      onCollisionEnter={(payload) => {
         setInCollision(true);
+        addDominance(payload);
       }}
-      onCollisionExit={() => {
+      onCollisionExit={(payload) => {
         setInCollision(false);
+        removeDominance(payload);
       }}
     >
       <group {...props} dispose={null} scale={0.0025}>
@@ -124,7 +147,7 @@ export function Box(props) {
           </mesh>
         </group>
       </group>
-      <CuboidCollider args={[0.252, 0.252, 0.252]} />
+      <CuboidCollider ref={collisionRef} args={[0.252, 0.252, 0.252]} />
     </RigidBody>
   );
 }
