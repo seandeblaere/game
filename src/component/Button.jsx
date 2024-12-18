@@ -5,9 +5,8 @@ import VisibleEdges from "../material/Edges";
 import { RigidBody, MeshCollider } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 
-export function Button(props) {
+export function Button({ isPressed, setPressed, ...props }) {
   const { nodes } = useGLTF("/../assets/button.glb");
-  const [pressed, setPressed] = useState(false);
   const buttonRef = useRef();
   const pressedPosition = -0.08;
   const unpressedPosition = 0.06;
@@ -15,7 +14,7 @@ export function Button(props) {
   useFrame(() => {
     if (buttonRef.current) {
       const currentPosition = buttonRef.current.translation().y;
-      const targetPosition = pressed ? pressedPosition : unpressedPosition;
+      const targetPosition = isPressed ? pressedPosition : unpressedPosition;
       const newPosition =
         currentPosition + (targetPosition - currentPosition) * 0.05;
 

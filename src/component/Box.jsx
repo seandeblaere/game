@@ -62,7 +62,7 @@ export function Box(props) {
     cubeRef.current.name = name;
 
     if (isHeld) {
-      const offset = new THREE.Vector3(0, 0, -2).applyQuaternion(
+      const offset = new THREE.Vector3(0, -0.15, -2).applyQuaternion(
         camera.quaternion
       );
       const targetPosition = camera.position.clone().add(offset);

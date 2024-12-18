@@ -8,13 +8,16 @@ import { Player } from "./component/Player";
 import { JumpPad } from "./component/JumpPad";
 import { Button } from "./component/Button";
 import { Box } from "./component/Box";
+import { Door } from "./component/Door";
 import { Performance } from "./performance/Performance";
 import { Leva } from "leva";
 import { KEYS, CANVAS_PROPS } from "./Const/constants";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { NightSky } from "./component/NightSky";
+import { useState } from "react";
 
 export function App() {
+  const [isButtonPressed, setIsButtonPressed] = useState(false);
   return (
     <>
       <KeyboardControls map={KEYS}>
@@ -36,7 +39,11 @@ export function App() {
               <Player />
               <JumpPad />
               <Box />
-              <Button />
+              <Door isOpen={isButtonPressed} />
+              <Button
+                isPressed={isButtonPressed}
+                setPressed={setIsButtonPressed}
+              />
             </Physics>
           </Bvh>
           <PointerLockControls />
