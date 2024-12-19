@@ -1,9 +1,9 @@
 import { Canvas } from "@react-three/fiber";
 import { PointerLockControls, KeyboardControls, Bvh } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
-import { Ground } from "./component/Ground";
-import { Cube } from "./component/Cube";
-import { Wall } from "./component/Wall";
+import { Ground, GroundShoot } from "./component/Ground";
+import { Cube, CubeShoot } from "./component/Cube";
+import { Wall, WallShoot } from "./component/Wall";
 import { Player } from "./component/Player";
 import { JumpPad } from "./component/JumpPad";
 import { Button } from "./component/Button";
@@ -34,10 +34,35 @@ export function App() {
             />
 
             <Physics gravity={[0, -15, 0]}>
-              <Ground />
-              <Cube />
+              <Ground args={[8, 12]} position={[20, 0, 4]} color="#71a4bf" />
+              <CubeShoot args={[8, 0.8, 6]} position={[20, 0.4, 13]} />
+              <CubeShoot position={[20, 18, 15]} args={[8, 0.1, 24]} />
+              <Cube
+                position={[20, 18, -5]}
+                args={[8, 0.1, 16]}
+                color="#71a4bf"
+              />
+              <GroundShoot args={[25, 25]} />
+              <Cube
+                position={[20, 3, 4]}
+                args={[2.5, 0.5, 2.5]}
+                color="#dff2a0"
+              />
+              <Cube
+                position={[20, 3.5, -7.5]}
+                args={[8, 7, 11]}
+                color="#ff9980"
+              />
+              <Wall
+                args={[40, 18]}
+                position={[24, 9, 7]}
+                rotation={[Math.PI, -Math.PI / 2, 0]}
+                color="#b7e1f7"
+              />
               <Player />
+              <CubeShoot args={[5, 5, 5]} position={[-2, 2.01, -8]} />
               <JumpPad />
+              <JumpPad position={[20, 3.25, 4]} />
               <Box />
               <Door isOpen={isButtonPressed} />
               <Button

@@ -1,35 +1,54 @@
 import { RigidBody } from "@react-three/rapier";
 import { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
+import { ToonMaterial } from "../material/ToonMaterial";
+import VisibleEdges from "../material/Edges";
 
-export function Wall({ position = [0, 0, 0], ...props }) {
+export function Wall({
+  position = [0, 0, 0],
+  rotation = [Math.PI, 0, 0],
+  args = [5, 5],
+  color = "#a0b3bd",
+}) {
   const rigidBodyRef = useRef();
-  const [timeOffset] = useState(() => Math.random() * Math.PI * 2);
-
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-
-    const y = position[1] + Math.sin(time + timeOffset) * 2;
-
-    if (rigidBodyRef.current) {
-      rigidBodyRef.current.setNextKinematicTranslation({
-        x: position[0],
-        y,
-        z: position[2],
-      });
-    }
-  });
 
   return (
-    <RigidBody
-      ref={rigidBodyRef}
-      type="kinematicPosition"
-      colliders="cuboid"
-      {...props}
-    >
-      <mesh castShadow receiveShadow name="wall" rotation={[Math.PI, 0, 0]}>
-        <planeGeometry args={[5, 5]} />
-        <meshStandardMaterial color="red" />
+    <RigidBody ref={rigidBodyRef} type="fixed" colliders="cuboid">
+      <mesh
+        castShadow
+        receiveShadow
+        name="wall"
+        rotation={rotation}
+        position={position}
+      >
+        <planeGeometry args={args} />
+        <ToonMaterial color={color} />
+        <VisibleEdges color="black" threshold={15} baseLineWidth={15} />
+      </mesh>
+    </RigidBody>
+  );
+}
+
+export function WallShoot({
+  position = [0, 0, 0],
+  rotation = [Math.PI, 0, 0],
+  args = [5, 5],
+  color = "#e8f4fa",
+}) {
+  const rigidBodyRef = useRef();
+
+  return (
+    <RigidBody ref={rigidBodyRef} type="fixed" colliders="cuboid">
+      <mesh
+        castShadow
+        receiveShadow
+        name="wallShoot"
+        rotation={rotation}
+        position={position}
+      >
+        <planeGeometry args={args} />
+        <ToonMaterial color={color} />
+        <VisibleEdges color="black" threshold={15} baseLineWidth={15} />
       </mesh>
     </RigidBody>
   );

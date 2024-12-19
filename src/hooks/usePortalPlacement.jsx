@@ -18,7 +18,9 @@ export function usePortalPlacement(onPortalPlace, portal1, portal2) {
     const intersects = raycaster.intersectObjects(scene.children, true);
 
     const filteredIntersections = intersects.filter((intersection) =>
-      ["cube", "wall", "ground"].includes(intersection.object.name)
+      ["cubeShoot", "wallShoot", "groundShoot"].includes(
+        intersection.object.name
+      )
     );
 
     if (filteredIntersections.length > 0) {

@@ -8,7 +8,6 @@ export function Gun(props) {
   const toonMesh = (geometry, position, rotation, color) => (
     <mesh
       layers={3}
-      castShadow
       receiveShadow
       geometry={geometry}
       position={position}

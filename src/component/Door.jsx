@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { ToonMaterial } from "../material/ToonMaterial";
 import VisibleEdges from "../material/Edges";
@@ -8,28 +8,32 @@ import { RigidBody, CuboidCollider } from "@react-three/rapier";
 
 export function Door({ isOpen, ...props }) {
   const group = useRef();
-  const { nodes, materials, animations } = useGLTF("../assets/door_sci-fi.glb");
+  const { nodes, materials } = useGLTF("../assets/door_sci-fi.glb");
   const up = useRef();
   const down = useRef();
   const left = useRef();
   const right = useRef();
+  const [isGroupReady, setIsGroupReady] = useState(false);
+
+  useEffect(() => {
+    if (group.current) {
+      setIsGroupReady(true);
+    }
+  }, [group.current]);
 
   useFrame(() => {
     if (!(up.current && down.current && left.current && right.current)) return;
 
-    // Current positions in world space
     const currentUpPosition = up.current.translation();
     const currentDownPosition = down.current.translation();
     const currentLeftPosition = left.current.translation();
     const currentRightPosition = right.current.translation();
 
-    // Target positions in local space
     const upLocalTargetY = isOpen ? 0.8 : 0;
     const downLocalTargetY = isOpen ? -2.4 : 0;
     const leftLocalTargetX = isOpen ? -0.5 : 0;
     const rightLocalTargetX = isOpen ? 0.5 : 0;
 
-    // Transform targets to world space
     const worldUpPosition = new THREE.Vector3(
       0,
       upLocalTargetY,
@@ -41,17 +45,16 @@ export function Door({ isOpen, ...props }) {
       0
     ).applyMatrix4(group.current.matrixWorld);
     const worldLeftPosition = new THREE.Vector3(
-      leftLocalTargetX, // Only move after delay
+      leftLocalTargetX,
       0,
       0
     ).applyMatrix4(group.current.matrixWorld);
     const worldRightPosition = new THREE.Vector3(
-      rightLocalTargetX, // Only move after delay
+      rightLocalTargetX,
       0,
       0
     ).applyMatrix4(group.current.matrixWorld);
 
-    // Smooth interpolation for all positions
     const smoothedUpY = THREE.MathUtils.lerp(
       currentUpPosition.y,
       worldUpPosition.y,
@@ -73,7 +76,6 @@ export function Door({ isOpen, ...props }) {
       isOpen ? 0.15 : 0.013
     );
 
-    // Update kinematic translations for all parts
     up.current.setNextKinematicTranslation({
       x: worldUpPosition.x,
       y: smoothedUpY,
@@ -130,11 +132,15 @@ export function Door({ isOpen, ...props }) {
                     material={materials.Pannel}
                   >
                     <ToonMaterial color={"#a3a7b5"} />
-                    <VisibleEdges
-                      color="black"
-                      threshold={25}
-                      baseLineWidth={8}
-                    />
+                    {isGroupReady && (
+                      <VisibleEdges
+                        color="black"
+                        threshold={25}
+                        baseLineWidth={10}
+                        otherParent={true}
+                        parentPosition={group.current.position}
+                      />
+                    )}
                   </mesh>
                 </group>
 
@@ -147,11 +153,15 @@ export function Door({ isOpen, ...props }) {
                     material={materials["Arch.001"]}
                   >
                     <ToonMaterial color={"#dadaf7"} />
-                    <VisibleEdges
-                      color="black"
-                      threshold={25}
-                      baseLineWidth={8}
-                    />
+                    {isGroupReady && (
+                      <VisibleEdges
+                        color="black"
+                        threshold={10}
+                        baseLineWidth={3}
+                        otherParent={true}
+                        parentPosition={group.current.position}
+                      />
+                    )}
                   </mesh>
                 </group>
               </RigidBody>
@@ -167,11 +177,15 @@ export function Door({ isOpen, ...props }) {
                         material={materials.Door}
                       >
                         <ToonMaterial color={"#a3a7b5"} />
-                        <VisibleEdges
-                          color="black"
-                          threshold={25}
-                          baseLineWidth={8}
-                        />
+                        {isGroupReady && (
+                          <VisibleEdges
+                            color="black"
+                            threshold={30}
+                            baseLineWidth={8}
+                            otherParent={true}
+                            parentPosition={group.current.position}
+                          />
+                        )}
                       </mesh>
                     </group>
                   </group>
@@ -199,11 +213,15 @@ export function Door({ isOpen, ...props }) {
                         material={materials.Door}
                       >
                         <ToonMaterial color={"#ffb038"} />
-                        <VisibleEdges
-                          color="black"
-                          threshold={25}
-                          baseLineWidth={8}
-                        />
+                        {isGroupReady && (
+                          <VisibleEdges
+                            color="black"
+                            threshold={30}
+                            baseLineWidth={8}
+                            otherParent={true}
+                            parentPosition={group.current.position}
+                          />
+                        )}
                       </mesh>
                     </group>
                   </group>
@@ -231,11 +249,15 @@ export function Door({ isOpen, ...props }) {
                         material={materials.Door}
                       >
                         <ToonMaterial color={"#6d7185"} />
-                        <VisibleEdges
-                          color="black"
-                          threshold={25}
-                          baseLineWidth={8}
-                        />
+                        {isGroupReady && (
+                          <VisibleEdges
+                            color="black"
+                            threshold={40}
+                            baseLineWidth={6}
+                            otherParent={true}
+                            parentPosition={group.current.position}
+                          />
+                        )}
                       </mesh>
                     </group>
                   </group>
@@ -264,11 +286,15 @@ export function Door({ isOpen, ...props }) {
                         material={materials.Door}
                       >
                         <ToonMaterial color={"#6d7185"} />
-                        <VisibleEdges
-                          color="black"
-                          threshold={25}
-                          baseLineWidth={8}
-                        />
+                        {isGroupReady && (
+                          <VisibleEdges
+                            color="black"
+                            threshold={40}
+                            baseLineWidth={6}
+                            otherParent={true}
+                            parentPosition={group.current.position}
+                          />
+                        )}
                       </mesh>
                     </group>
                   </group>

@@ -6,15 +6,23 @@ Source: https://sketchfab.com/3d-models/sm-jumppad-7a41b91af23b4a7db4579677666c7
 Title: SM_JumpPad
 */
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useGLTF, Edges } from "@react-three/drei";
 import * as THREE from "three";
 import { RigidBody, MeshCollider, CuboidCollider } from "@react-three/rapier";
 import { ToonMaterial } from "../material/ToonMaterial";
 import VisibleEdges from "../material/Edges";
 
-export function JumpPad(props) {
+export function JumpPad({ position = [0, 0.07, 0] }) {
   const { nodes, materials } = useGLTF("../assets/sm_jumppad.glb");
+  const group = useRef();
+  const [isGroupReady, setIsGroupReady] = useState(false);
+
+  useEffect(() => {
+    if (group.current) {
+      setIsGroupReady(true);
+    }
+  }, [group.current]);
 
   const jump = (payload) => {
     const isPlayer = payload.other.rigidBodyObject?.name === "Player";
@@ -33,7 +41,7 @@ export function JumpPad(props) {
   return (
     <>
       <RigidBody colliders={false} type="fixed">
-        <group {...props} dispose={null} position={[0, 0.07, 0]}>
+        <group dispose={null} position={position} ref={group}>
           <group scale={0.025}>
             <MeshCollider type="hull">
               <mesh
@@ -44,7 +52,15 @@ export function JumpPad(props) {
                 scale={50}
               >
                 <ToonMaterial color={"#FFABAB"} />
-                <VisibleEdges color="black" threshold={25} baseLineWidth={8} />
+                {isGroupReady && (
+                  <VisibleEdges
+                    color="black"
+                    threshold={25}
+                    baseLineWidth={6}
+                    otherParent={true}
+                    parentPosition={group.current.position}
+                  />
+                )}
               </mesh>
             </MeshCollider>
 
@@ -54,20 +70,29 @@ export function JumpPad(props) {
               scale={50}
             >
               <ToonMaterial transparent={true} opacity={0.5} color="#FFE3A9" />
-              <Edges
-                linewidth={1}
-                threshold={15}
-                transparent={true}
-                opacity={0.5}
-                color="#FFE3A9"
-              />
+              {isGroupReady && (
+                <VisibleEdges
+                  color="#FFE3A9"
+                  threshold={15}
+                  baseLineWidth={3}
+                  otherParent={true}
+                  parentPosition={group.current.position}
+                />
+              )}
             </mesh>
           </group>
         </group>
       </RigidBody>
 
       <RigidBody type="fixed" onCollisionEnter={(payload) => jump(payload)}>
-        <CuboidCollider args={[0.65, 0.001, 0.65]} position={[0, 0.52, 0]} />
+        <CuboidCollider
+          args={[0.65, 0.001, 0.65]}
+          position={[
+            ...position.slice(0, 1),
+            position[1] + 0.52,
+            ...position.slice(2),
+          ]}
+        />
       </RigidBody>
     </>
   );

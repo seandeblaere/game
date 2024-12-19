@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
 import { ToonMaterial } from "../material/ToonMaterial";
 import VisibleEdges from "../material/Edges";
@@ -10,6 +10,14 @@ export function Button({ isPressed, setPressed, ...props }) {
   const buttonRef = useRef();
   const pressedPosition = -0.08;
   const unpressedPosition = 0.06;
+  const group = useRef();
+  const [isGroupReady, setIsGroupReady] = useState(false);
+
+  useEffect(() => {
+    if (group.current) {
+      setIsGroupReady(true);
+    }
+  }, [group.current]);
 
   useFrame(() => {
     if (buttonRef.current) {
@@ -43,7 +51,13 @@ export function Button({ isPressed, setPressed, ...props }) {
   };
 
   return (
-    <group {...props} dispose={null} scale={0.4} position={[2, 0.07, 5]}>
+    <group
+      {...props}
+      dispose={null}
+      scale={0.4}
+      position={[2, 0.07, 5]}
+      ref={group}
+    >
       <RigidBody colliders={false} type="fixed">
         <MeshCollider type="hull">
           <mesh
@@ -53,7 +67,15 @@ export function Button({ isPressed, setPressed, ...props }) {
             scale={0.01}
           >
             <ToonMaterial color={"#d8f5b8"} />
-            <VisibleEdges color="black" threshold={5} baseLineWidth={5} />
+            {isGroupReady && (
+              <VisibleEdges
+                color="black"
+                threshold={5}
+                baseLineWidth={5}
+                otherParent={true}
+                parentPosition={group.current.position}
+              />
+            )}
           </mesh>
         </MeshCollider>
       </RigidBody>
@@ -74,7 +96,15 @@ export function Button({ isPressed, setPressed, ...props }) {
             scale={0.01}
           >
             <ToonMaterial color={"#ff6152"} />
-            <VisibleEdges color="black" threshold={5} baseLineWidth={5} />
+            {isGroupReady && (
+              <VisibleEdges
+                color="black"
+                threshold={5}
+                baseLineWidth={5}
+                otherParent={true}
+                parentPosition={group.current.position}
+              />
+            )}
           </mesh>
         </MeshCollider>
       </RigidBody>

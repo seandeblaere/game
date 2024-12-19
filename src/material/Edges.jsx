@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Edges } from "@react-three/drei";
+import * as THREE from "three";
 
 function VisibleEdges({
   color = "black",
@@ -8,7 +9,7 @@ function VisibleEdges({
   baseLineWidth = 4,
   far = 50,
   otherParent = false,
-  parentPosition,
+  parentPosition = new THREE.Vector3(0, 0, 0),
 }) {
   const edgeRef = useRef();
 
