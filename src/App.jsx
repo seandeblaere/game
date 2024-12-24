@@ -4,6 +4,7 @@ import { Physics } from "@react-three/rapier";
 import { Ground, GroundShoot } from "./component/Ground";
 import { Player } from "./component/Player";
 import { Wall } from "./component/WallTile";
+import { Floor } from "./component/Floor";
 import { Performance } from "./performance/Performance";
 import { KEYS, CANVAS_PROPS } from "./Const/constants";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -27,9 +28,10 @@ export function App() {
               distance={50}
             />
 
-            <Physics gravity={[0, -15, 0]}>
+            <Physics gravity={[0, -15, 0]} debug>
               <GroundShoot />
               <Wall />
+              <Floor />
               <Player />
             </Physics>
           </Bvh>

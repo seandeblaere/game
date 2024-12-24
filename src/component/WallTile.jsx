@@ -30,7 +30,7 @@ export function WallTile({ nodes, materials, position }) {
             material={materials["Material.005"]}
             ref={wallref}
           >
-            <ToonMaterial color={"#a3a7b5"} />
+            <ToonMaterial color={"#dde0ed"} />
             {isWallReady && (
               <VisibleEdges
                 color="black"
@@ -165,18 +165,6 @@ export function Wall() {
           />
         </group>
       </group>
-      <RigidBody type="fixed" colliders="cuboid">
-        <mesh
-          name="wallShoot"
-          rotation={[0, Math.PI / 2, 0]}
-          position={[-4.07, 4.7, 4.3]}
-          visible={false}
-        >
-          <planeGeometry args={[21.1, 9.3]} />
-          <ToonMaterial color={"yellow"} />
-          <VisibleEdges color="black" threshold={15} baseLineWidth={15} />
-        </mesh>
-      </RigidBody>
     </>
   );
 }
