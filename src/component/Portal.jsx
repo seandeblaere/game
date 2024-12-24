@@ -160,7 +160,6 @@ export function Portal({ thisPortal, otherPortal, dpr, sharedCooldown }) {
                 chromaticAberration={10}
               />
             )}
-            <VisibleEdges color="black" threshold={25} baseLineWidth={8} />
           </mesh>
         </group>
       </RigidBody>
