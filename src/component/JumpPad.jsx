@@ -40,8 +40,8 @@ export function JumpPad({ position = [0, 0.07, 0] }) {
 
   return (
     <>
-      <RigidBody colliders={false} type="fixed">
-        <group dispose={null} position={position} ref={group}>
+      <RigidBody colliders={false} type="fixed" position={position}>
+        <group dispose={null} ref={group}>
           <group scale={0.025}>
             <MeshCollider type="hull">
               <mesh

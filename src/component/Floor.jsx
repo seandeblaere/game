@@ -13,11 +13,10 @@ import VisibleEdges from "../material/Edges";
 import { useGLTF } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 
-export function Floor() {
+export function FloorTile({ nodes, materials, position }) {
   const [isFloorReady, setIsFloorReady] = useState(false);
   const floor = useRef();
   const [worldPosition, setWorldPosition] = useState(new THREE.Vector3());
-  const { nodes, materials } = useGLTF("/../assets/floortile.glb");
 
   useEffect(() => {
     if (floor.current) {
@@ -29,11 +28,7 @@ export function Floor() {
   }, [floor.current]);
 
   return (
-    <group
-      dispose={null}
-      position={[0, 0.1, 0]}
-      rotation={[-Math.PI / 2, 0, 0]}
-    >
+    <group dispose={null} position={position} rotation={[-Math.PI / 2, 0, 0]}>
       <group scale={0.006}>
         <mesh
           castShadow
@@ -43,7 +38,7 @@ export function Floor() {
           position={[0, 0, -8.893]}
           ref={floor}
         >
-          <ToonMaterial color={"#aeb2c2"} />
+          <ToonMaterial color={"#c4cef2"} />
           {isFloorReady && (
             <VisibleEdges
               color="black"
@@ -55,6 +50,63 @@ export function Floor() {
           )}
         </mesh>
       </group>
+    </group>
+  );
+}
+
+export function Floor({
+  rows = 2,
+  columns = 2,
+  position = [0, 0, 0],
+  rotation = [0, 0, 0],
+  shoot = false,
+}) {
+  const { nodes, materials } = useGLTF("/../assets/floortile.glb");
+  const tiles = [];
+  const tileSize = 1.5;
+  const tileSpacing = 1.5;
+
+  const generateFloorTiles = () => {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        const tilePosition = [
+          j * (tileSize + tileSpacing),
+          0,
+          i * (tileSize + tileSpacing),
+        ];
+
+        tiles.push(
+          <FloorTile
+            key={`tile-${i}-${j}`}
+            nodes={nodes}
+            materials={materials}
+            position={tilePosition}
+          />
+        );
+      }
+    }
+    return tiles;
+  };
+
+  return (
+    <group position={position} rotation={rotation}>
+      <RigidBody type="fixed" colliders="cuboid">
+        {generateFloorTiles()}
+      </RigidBody>
+      {shoot && (
+        <mesh
+          name="groundShoot"
+          position={[
+            tileSize * columns - tileSize,
+            0.054,
+            tileSize * rows - tileSize,
+          ]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          visible={false}
+        >
+          <planeGeometry args={[3 * columns, 3 * rows]} />
+        </mesh>
+      )}
     </group>
   );
 }

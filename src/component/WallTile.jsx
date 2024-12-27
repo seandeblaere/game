@@ -5,7 +5,7 @@ import VisibleEdges from "../material/Edges";
 import { useGLTF } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 
-export function WallTile({ nodes, materials, position }) {
+export function WallTile({ nodes, materials, position, shoot }) {
   const [isWallReady, setIsWallReady] = useState(false);
   const wallref = useRef();
   const [worldPosition, setWorldPosition] = useState(new THREE.Vector3());
@@ -19,6 +19,8 @@ export function WallTile({ nodes, materials, position }) {
     }
   }, [wallref.current]);
 
+  const color1 = shoot ? "#f5f3ed" : "#c4cef2";
+  const color2 = shoot ? "#f5f3ed" : "#7baae8";
   return (
     <group dispose={null} position={position} rotation={[0, -Math.PI / 2, 0]}>
       <group scale={0.002}>
@@ -30,29 +32,30 @@ export function WallTile({ nodes, materials, position }) {
             material={materials["Material.005"]}
             ref={wallref}
           >
-            <ToonMaterial color={"#dde0ed"} />
+            <ToonMaterial color={color1} />
             {isWallReady && (
               <VisibleEdges
                 color="black"
                 threshold={25}
-                baseLineWidth={10}
+                baseLineWidth={8}
                 otherParent={true}
                 parentPosition={worldPosition}
               />
             )}
           </mesh>
+
           <mesh
             castShadow
             receiveShadow
             geometry={nodes["wallpanel02-col_Material009_0"].geometry}
             material={materials["Material.009"]}
           >
-            <ToonMaterial color={"#a3a7b5"} />
+            <ToonMaterial color={color2} />
             {isWallReady && (
               <VisibleEdges
                 color="black"
                 threshold={25}
-                baseLineWidth={10}
+                baseLineWidth={8}
                 otherParent={true}
                 parentPosition={worldPosition}
               />
@@ -64,106 +67,86 @@ export function WallTile({ nodes, materials, position }) {
   );
 }
 
-export function Wall() {
+export function Wall({
+  rows = 2,
+  columns = 2,
+  position = [0, 0, 0],
+  rotation = [0, 0, 0],
+  shoot = false,
+}) {
   const { nodes, materials } = useGLTF("../assets/sci-fi_wall_panels.glb");
+  const tileSize = 4.24;
+  const height = 4.69;
+
+  const generateWallTiles = (shoot) => {
+    const tiles = [];
+
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        const position = [0, i * height, j * tileSize];
+        tiles.push(
+          <WallTile
+            key={`tile-${i}-${j}`}
+            nodes={nodes}
+            materials={materials}
+            position={position}
+            shoot={shoot}
+          />
+        );
+      }
+    }
+    return tiles;
+  };
+
+  let wallShootRotation;
+  let wallShootPosition;
+
+  if (rotation[1] === -Math.PI / 2) {
+    wallShootRotation = [0, Math.PI, 0];
+    wallShootPosition = [
+      tileSize / 2 - (tileSize * columns) / 2 + 0.1,
+      (height * rows) / 2,
+      -2.93,
+    ];
+  } else if (rotation[1] === Math.PI / 2) {
+    wallShootRotation = [0, 0, 0];
+    wallShootPosition = [
+      -tileSize / 2 + (tileSize * columns) / 2 - 0.1,
+      (height * rows) / 2,
+      +2.93,
+    ];
+  } else if (rotation[1] === Math.PI) {
+    wallShootRotation = [0, Math.PI / 2, 0];
+    wallShootPosition = [
+      +2.93,
+      (height * rows) / 2,
+      tileSize / 2 - (tileSize * columns) / 2 + 0.1,
+    ];
+  } else {
+    wallShootRotation = [0, -Math.PI / 2, 0];
+    wallShootPosition = [
+      -2.93,
+      (height * rows) / 2,
+      -tileSize / 2 + (tileSize * columns) / 2 - 0.1,
+    ];
+  }
 
   return (
     <>
-      <group position={[-7, 0, 0]} rotation={[0, -Math.PI, 0]}>
-        <group position={[0, 0, 0]}>
-          <WallTile nodes={nodes} materials={materials} position={[0, 0, 0]} />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, 4.24]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, -4.24]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, -8.48]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, -12.72]}
-          />
-        </group>
-        <group position={[0, 4.69, 0]}>
-          <WallTile nodes={nodes} materials={materials} position={[0, 0, 0]} />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, 4.24]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, -4.24]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, -8.48]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, -12.72]}
-          />
-        </group>
-      </group>
-      <group position={[7, 0, 0]}>
-        <group position={[0, 0, 0]}>
-          <WallTile nodes={nodes} materials={materials} position={[0, 0, 0]} />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, -4.24]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, 4.24]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, 8.48]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, 12.72]}
-          />
-        </group>
-        <group position={[0, 4.69, 0]}>
-          <WallTile nodes={nodes} materials={materials} position={[0, 0, 0]} />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, -4.24]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, 4.24]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, 8.48]}
-          />
-          <WallTile
-            nodes={nodes}
-            materials={materials}
-            position={[0, 0, 12.72]}
-          />
-        </group>
+      <group position={position}>
+        <RigidBody type="fixed" colliders="cuboid" rotation={rotation}>
+          {generateWallTiles(shoot)}
+        </RigidBody>
+        {shoot && (
+          <mesh
+            name="wallShoot"
+            rotation={wallShootRotation}
+            position={wallShootPosition}
+            visible={false}
+          >
+            <planeGeometry args={[tileSize * columns, height * rows]} />
+          </mesh>
+        )}
       </group>
     </>
   );
