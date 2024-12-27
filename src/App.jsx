@@ -25,18 +25,16 @@ export function App() {
             <Performance />
             <Bvh>
               <NightSky />
-              <ambientLight intensity={1.2} />
-              <directionalLight
-                castShadow
-                intensity={1}
-                position={[0, 5, -14]}
-                distance={50}
-              />
+              <ambientLight intensity={0.8} />
 
-              <Physics gravity={[0, -15, 0]} debug>
+              <Physics gravity={[0, -15, 0]}>
                 <GroundShoot position={[0, -3, 0]} />
 
-                <Cube position={[-0.05, 1, 0]} args={[4.1, 0.1, 6]} />
+                <CeilingTile
+                  position={[-0.045, 9.4, -2]}
+                  args={[4.1, 0.1, 6]}
+                  color={"#7baae8"}
+                />
 
                 <Wall
                   columns={4}
@@ -76,7 +74,7 @@ export function App() {
                 <Cube
                   position={[-15, 3, 14.5]}
                   args={[3, 0.5, 3]}
-                  color={"#edc0e7"}
+                  color={"#d2b0f7"}
                 />
                 <JumpPad position={[-15, 3.25, 14.5]} />
 
