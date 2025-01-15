@@ -7,12 +7,10 @@ import {
   useFBO,
   MeshTransmissionMaterial,
   ContactShadows,
-  Edges,
   PositionalAudio,
 } from "@react-three/drei";
 import useTeleport from "../hooks/useTeleport";
 import animateMaterialColor from "../utils/animateMaterialColor";
-import VisibleEdges from "../material/Edges";
 
 export function Portal({ thisPortal, otherPortal, dpr, sharedCooldown }) {
   const rigidBodyRef = useRef();

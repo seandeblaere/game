@@ -13,7 +13,7 @@ import { RigidBody, MeshCollider, CuboidCollider } from "@react-three/rapier";
 import { ToonMaterial } from "../material/ToonMaterial";
 import VisibleEdges from "../material/Edges";
 
-export function JumpPad({ position = [0, 0.07, 0] }) {
+export function JumpPad({ position = [0, 0.07, 0] }, color) {
   const { nodes, materials } = useGLTF("../assets/sm_jumppad.glb");
   const group = useRef();
   const [isGroupReady, setIsGroupReady] = useState(false);
@@ -51,12 +51,12 @@ export function JumpPad({ position = [0, 0.07, 0] }) {
                 rotation={[-Math.PI / 2, 0, 0]}
                 scale={50}
               >
-                <ToonMaterial color={"#FFABAB"} />
+                <ToonMaterial color={"#fcdef9"} />
                 {isGroupReady && (
                   <VisibleEdges
                     color="black"
                     threshold={25}
-                    baseLineWidth={6}
+                    baseLineWidth={15}
                     otherParent={true}
                     parentPosition={group.current.position}
                   />
@@ -74,7 +74,7 @@ export function JumpPad({ position = [0, 0.07, 0] }) {
                 <VisibleEdges
                   color="#FFE3A9"
                   threshold={15}
-                  baseLineWidth={3}
+                  baseLineWidth={15}
                   otherParent={true}
                   parentPosition={group.current.position}
                 />
