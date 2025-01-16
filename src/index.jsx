@@ -46,11 +46,13 @@ function Overlay() {
       {!ready && !menu && (
         <div className="fullscreen bg notready">
           <h1>Portal Runner</h1>
+
           <div className="button-container">
             <button onClick={handleStart} className="button-49">
               Start
             </button>
           </div>
+          <h3>Press p to show controls menu</h3>
         </div>
       )}
 
