@@ -28,6 +28,8 @@ export function Player() {
   const { camera } = useThree();
   const cooldownRef = useRef(0);
 
+  const shootSound = useState(() => new Audio("/sounds/shoot.wav"))[0];
+
   useEffect(() => {
     camera.layers.enableAll();
   }, [camera]);
@@ -59,6 +61,9 @@ export function Player() {
   }, []);
 
   const handleMouseClick = () => {
+    shootSound.currentTime = 0;
+    shootSound.volume = 0.5;
+    shootSound.play();
     placePortal();
     const gunPart = gun.current.children[0];
     gunPart.rotation.x = THREE.MathUtils.lerp(

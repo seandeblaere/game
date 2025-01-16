@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 
-export function Door({ isOpen, ...props }) {
+export function Door({ isOpen, position, rotation }) {
   const group = useRef();
   const { nodes, materials } = useGLTF("../assets/door_sci-fi.glb");
   const up = useRef();
@@ -104,10 +104,10 @@ export function Door({ isOpen, ...props }) {
   return (
     <group
       ref={group}
-      {...props}
       dispose={null}
-      position={[4, 0, 9]}
-      scale={1.2}
+      position={position}
+      scale={1.3}
+      rotation={rotation}
     >
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>

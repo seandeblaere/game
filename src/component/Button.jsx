@@ -4,6 +4,7 @@ import { ToonMaterial } from "../material/ToonMaterial";
 import VisibleEdges from "../material/Edges";
 import { RigidBody, MeshCollider } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
+import { MeshBasicMaterial } from "three";
 
 export function Button({ isPressed, setPressed, position }) {
   const { nodes } = useGLTF("/../assets/button.glb");
@@ -55,59 +56,80 @@ export function Button({ isPressed, setPressed, position }) {
   };
 
   return (
-    <group dispose={null} scale={0.8} ref={group} position={position}>
-      <RigidBody colliders={false} type="fixed">
-        <MeshCollider type="hull">
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.pCylinder9_defaultPolygonShader_0.geometry}
-            scale={0.01}
-          >
-            <ToonMaterial color={"#d8f5b8"} />
-            {isGroupReady && (
-              <VisibleEdges
-                color="black"
-                threshold={5}
-                baseLineWidth={5}
-                otherParent={true}
-                parentPosition={group.current.position}
-              />
-            )}
-          </mesh>
-        </MeshCollider>
-      </RigidBody>
+    <>
+      <group dispose={null} scale={0.4} ref={group} position={position}>
+        <RigidBody colliders={false} type="fixed">
+          <MeshCollider type="hull">
+            <mesh
+              castShadow
+              receiveShadow
+              geometry={nodes.pCylinder9_defaultPolygonShader_0.geometry}
+              scale={0.01}
+            >
+              <ToonMaterial color={"#d8f5b8"} />
+              {isGroupReady && (
+                <VisibleEdges
+                  color="black"
+                  threshold={5}
+                  baseLineWidth={5}
+                  otherParent={true}
+                  parentPosition={group.current.position}
+                />
+              )}
+            </mesh>
+          </MeshCollider>
+        </RigidBody>
 
-      <RigidBody
-        ref={buttonRef}
-        colliders={false}
-        name="button"
-        type="fixed"
-        onCollisionEnter={(payload) => handleCollisionEnter(payload)}
-        onCollisionExit={(payload) => handleCollisionExit(payload)}
-        dominanceGroup={-127}
-      >
-        <MeshCollider type="hull">
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.pCylinder10_defaultPolygonShader_0.geometry}
-            scale={0.01}
-          >
-            <ToonMaterial color={"#ff6152"} />
-            {isGroupReady && (
-              <VisibleEdges
-                color="black"
-                threshold={5}
-                baseLineWidth={5}
-                otherParent={true}
-                parentPosition={group.current.position}
-              />
-            )}
-          </mesh>
-        </MeshCollider>
-      </RigidBody>
-    </group>
+        <RigidBody
+          ref={buttonRef}
+          colliders={false}
+          name="button"
+          type="fixed"
+          dominanceGroup={-127}
+        >
+          <MeshCollider type="hull">
+            <mesh
+              castShadow
+              receiveShadow
+              geometry={nodes.pCylinder10_defaultPolygonShader_0.geometry}
+              scale={0.01}
+            >
+              <ToonMaterial color={"#ff6152"} />
+              {isGroupReady && (
+                <VisibleEdges
+                  color="black"
+                  threshold={5}
+                  baseLineWidth={5}
+                  otherParent={true}
+                  parentPosition={group.current.position}
+                />
+              )}
+            </mesh>
+          </MeshCollider>
+        </RigidBody>
+      </group>
+      <group dispose={null} scale={0.5} position={position}>
+        <RigidBody
+          colliders={false}
+          name="button"
+          type="fixed"
+          onIntersectionEnter={(payload) => handleCollisionEnter(payload)}
+          onIntersectionExit={(payload) => handleCollisionExit(payload)}
+          sensor
+        >
+          <MeshCollider type="hull">
+            <mesh
+              castShadow
+              receiveShadow
+              geometry={nodes.pCylinder10_defaultPolygonShader_0.geometry}
+              scale={0.01}
+            >
+              <meshStandardMaterial transparent opacity={0} />
+            </mesh>
+          </MeshCollider>
+        </RigidBody>
+      </group>
+    </>
   );
 }
 

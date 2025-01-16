@@ -13,6 +13,8 @@ export function usePortalPlacement(onPortalPlace, portal1, portal2) {
   const MIN_PORTAL_DISTANCE = radius * 2;
   const { checkProximity, checkEdges, normalizeWorldNormal } = useHelper();
 
+  const switchSound = useState(() => new Audio("/sounds/reload.wav"))[0];
+
   const placePortal = () => {
     raycaster.setFromCamera({ x: 0, y: 0 }, camera);
     const intersects = raycaster.intersectObjects(scene.children, true);
@@ -78,6 +80,8 @@ export function usePortalPlacement(onPortalPlace, portal1, portal2) {
     const unsubscribe = subscribeToKeys(({ switch: switchKey }) => {
       if (switchKey) {
         setIsPortal1Active((prev) => !prev);
+        switchSound.currentTime = 0;
+        switchSound.play();
       }
     });
 

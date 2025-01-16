@@ -161,6 +161,7 @@ export function Portal({ thisPortal, otherPortal, dpr, sharedCooldown }) {
           </mesh>
         </group>
       </RigidBody>
+
       <PerspectiveCamera
         ref={portalCameraRef}
         near={0.1}

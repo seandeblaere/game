@@ -12,14 +12,19 @@ import { ToonMaterial } from "../material/ToonMaterial";
 import VisibleEdges from "../material/Edges";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 
-export function Pipes({ position, rotation }) {
+export function Pipes({ position, rotation, scale = 0.1 }) {
   const { nodes, materials } = useGLTF(
     "/../assets/sci-fi_energy_conduit_system.glb"
   );
 
   return (
     <>
-      <group dispose={null} scale={0.1} position={position} rotation={rotation}>
+      <group
+        dispose={null}
+        scale={scale}
+        position={position}
+        rotation={rotation}
+      >
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <group rotation={[Math.PI / 2, 0, 0]}>
             <mesh

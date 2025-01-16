@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useLoader } from "@react-three/fiber";
 import { useMemo } from "react";
-import TOON_TONE from "../assets/textures/fiveTone.jpg";
+import TOON_TONE from "/assets/textures/fiveTone.jpg";
 
 export function ToonMaterial({ color = "#FFFFFF", ...props }) {
   const rawTexture = useLoader(THREE.TextureLoader, TOON_TONE);
