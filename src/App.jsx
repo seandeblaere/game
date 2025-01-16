@@ -7,7 +7,6 @@ import {
   BakeShadows,
 } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
-import { Ground, GroundShoot } from "./component/Ground";
 import { Player } from "./component/Player";
 import { Wall } from "./component/WallTile";
 import { Pipes } from "./component/Pipes";
@@ -19,9 +18,11 @@ import { KEYS, CANVAS_PROPS } from "./Const/constants";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { NightSky } from "./component/NightSky";
 import { useState, Suspense } from "react";
-import { Cube, CubeShoot } from "./component/Cube";
+import { Cube, CubeShoot, CubePressed } from "./component/Cube";
 import { SpotLightHelper, PointLightHelper } from "three";
 import { useRef, useEffect } from "react";
+import { Button } from "./component/Button";
+import { Box } from "./component/Box";
 
 export function App() {
   const [isButtonPressed, setIsButtonPressed] = useState(false);
@@ -35,7 +36,6 @@ export function App() {
         const helper = new PointLightHelper(lightRef.current);
         helperRef.current = helper;
 
-        // Add helper to the light's parent
         lightRef.current.parent.add(helper);
       }
     }, []);
@@ -170,10 +170,10 @@ export function App() {
                   shoot
                 />
 
-                <CubeShoot
+                <Cube
                   position={[-30.9, 0, 21]}
                   args={[6, 20, 0.1]}
-                  color={"#f5f3ed"}
+                  color={"#c9ffc9"}
                 />
                 <Cube
                   position={[-27.85, 0, 23.95]}
@@ -192,10 +192,61 @@ export function App() {
                 />
 
                 <CubeShoot
-                  position={[-30.85, -8, 23.95]}
+                  position={[-30.85, 0, 23.95]}
                   args={[5.8, 0.5, 5.8]}
                   color={"#f5f3ed"}
                 />
+
+                <CubePressed
+                  position={[-30.85, 10, 23.95]}
+                  args={[5.8, 0.5, 5.8]}
+                  color={"#ff734d"}
+                  isPressed={isButtonPressed}
+                />
+
+                <CubeShoot
+                  position={[-37, 11, 17]}
+                  args={[5, 0.5, 5]}
+                  color={"#f5f3ed"}
+                />
+
+                <Cube
+                  position={[-37, 13, 23.95]}
+                  args={[2.5, 2.5, 2.5]}
+                  color={"#fff475"}
+                />
+
+                <Cube
+                  position={[-37, 14, 28.5]}
+                  args={[2.5, 2.5, 2.5]}
+                  color={"#fff475"}
+                />
+
+                <Cube
+                  position={[-32.5, 15, 28.5]}
+                  args={[2.5, 2.5, 2.5]}
+                  color={"#fff475"}
+                />
+
+                <Cube
+                  position={[-28, 16, 28.5]}
+                  args={[2.5, 2.5, 2.5]}
+                  color={"#fff475"}
+                />
+
+                <Cube
+                  position={[-26, 17, 23.95]}
+                  args={[2.5, 2.5, 2.5]}
+                  color={"#fff475"}
+                />
+
+                <Button
+                  isPressed={isButtonPressed}
+                  setPressed={setIsButtonPressed}
+                  position={[-24, 10.15, 21]}
+                />
+
+                <Box position={[-30.85, 15, 23.95]} />
 
                 <JumpPad position={[-15, 5.25, 14.5]} color={"#00FF00"} />
 

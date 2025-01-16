@@ -5,11 +5,11 @@ import VisibleEdges from "../material/Edges";
 import { RigidBody, MeshCollider } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 
-export function Button({ isPressed, setPressed, ...props }) {
+export function Button({ isPressed, setPressed, position }) {
   const { nodes } = useGLTF("/../assets/button.glb");
   const buttonRef = useRef();
-  const pressedPosition = -0.08;
-  const unpressedPosition = 0.06;
+  const pressedPosition = position[1] - 0.08;
+  const unpressedPosition = position[1] + 0.055;
   const group = useRef();
   const [isGroupReady, setIsGroupReady] = useState(false);
 
@@ -19,14 +19,18 @@ export function Button({ isPressed, setPressed, ...props }) {
     }
   }, [group.current]);
 
-  useFrame(() => {
+  useFrame((state, delta) => {
     if (buttonRef.current) {
       const currentPosition = buttonRef.current.translation().y;
       const targetPosition = isPressed ? pressedPosition : unpressedPosition;
       const newPosition =
-        currentPosition + (targetPosition - currentPosition) * 0.05;
+        currentPosition + (targetPosition - currentPosition) * delta;
 
-      buttonRef.current.setTranslation({ x: 2, y: newPosition, z: 5 });
+      buttonRef.current.setTranslation({
+        x: buttonRef.current.translation().x,
+        y: newPosition,
+        z: buttonRef.current.translation().z,
+      });
     }
   });
 
@@ -51,13 +55,7 @@ export function Button({ isPressed, setPressed, ...props }) {
   };
 
   return (
-    <group
-      {...props}
-      dispose={null}
-      scale={0.4}
-      position={[2, 0.07, 5]}
-      ref={group}
-    >
+    <group dispose={null} scale={0.8} ref={group} position={position}>
       <RigidBody colliders={false} type="fixed">
         <MeshCollider type="hull">
           <mesh
@@ -87,6 +85,7 @@ export function Button({ isPressed, setPressed, ...props }) {
         type="fixed"
         onCollisionEnter={(payload) => handleCollisionEnter(payload)}
         onCollisionExit={(payload) => handleCollisionExit(payload)}
+        dominanceGroup={-127}
       >
         <MeshCollider type="hull">
           <mesh

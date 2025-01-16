@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { velocity } from "three/webgpu";
 
 const useTeleport = ({ playerName = "Player", camera }) => {
   const teleportPlayer = ({

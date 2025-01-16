@@ -7,7 +7,7 @@ import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useKeyboardControls } from "@react-three/drei";
 
-export function Box(props) {
+export function Box({ position }) {
   const { nodes } = useGLTF("/../assets/generator3.glb");
   const cubeRef = useRef();
   const collisionRef = useRef();
@@ -101,7 +101,7 @@ export function Box(props) {
       colliders={false}
       type="dynamic"
       name={name}
-      position={[3, 2, 2]}
+      position={position}
       onPointerOver={() => setIsHovered(true)}
       onPointerOut={() => setIsHovered(false)}
       onCollisionEnter={(payload) => {
@@ -113,7 +113,7 @@ export function Box(props) {
         removeDominance(payload);
       }}
     >
-      <group {...props} dispose={null} scale={0.0025}>
+      <group dispose={null} scale={0.0025}>
         <group rotation={[-Math.PI / 2, 0, 0]} scale={100}>
           <mesh
             castShadow
