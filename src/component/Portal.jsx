@@ -6,8 +6,6 @@ import {
   PerspectiveCamera,
   useFBO,
   MeshTransmissionMaterial,
-  ContactShadows,
-  PositionalAudio,
 } from "@react-three/drei";
 import useTeleport from "../hooks/useTeleport";
 import animateMaterialColor from "../utils/animateMaterialColor";

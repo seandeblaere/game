@@ -53,6 +53,7 @@ function Overlay() {
             </button>
           </div>
           <h3>Press p to show controls menu</h3>
+          <p>Press esc to show cursor</p>
         </div>
       )}
 
@@ -63,12 +64,12 @@ function Overlay() {
             <button onClick={handleRestart} className="button-49">
               Restart
             </button>
+            <p>Press esc to show cursor</p>
           </div>
         </div>
       )}
       {menu && (
         <div className="fullscreen bg notready">
-          <h2>Game Instructions</h2>
           <div className="controls">
             <h3>Controls:</h3>
             <ul>
@@ -83,7 +84,7 @@ function Overlay() {
                 <strong>Click</strong> - Shoot portal
               </li>
               <li>
-                <strong>F</strong> - Switch portal
+                <strong>F</strong> - Switch to other portal
               </li>
               <li>
                 <strong>R</strong> - Pick up cube
@@ -99,7 +100,7 @@ function Overlay() {
               </li>
               <li>
                 <strong>Portal Placement</strong> must be within the bounds of a
-                surface. If the portal is placed over an edge, it will not
+                surface. If the portal will be placed over an edge, it will not
                 trigger.
               </li>
               <li>
@@ -108,7 +109,7 @@ function Overlay() {
                 momentum is conserved as you pass through!
               </li>
               <li>
-                Use the<strong>Launchpad</strong> to jump really high!
+                Use the <strong>Launchpad</strong> to jump really high!
               </li>
               <li>Cubes can also pass through portals, even on their own!</li>
             </ul>
@@ -118,12 +119,15 @@ function Overlay() {
             <button onClick={handleContinue} className="button-49">
               Continue
             </button>
+            <p className="escape">Press esc to show cursor</p>
           </div>
         </div>
       )}
 
       <div className="crosshair" />
       <div className="crosshair2" />
+
+      <h2 className="info">Press p to show controls menu</h2>
     </>
   );
 }

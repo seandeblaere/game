@@ -86,7 +86,7 @@ export function usePortalPlacement(onPortalPlace, portal1, portal2) {
     });
 
     return () => unsubscribe();
-  }, [subscribeToKeys, isPortal1Active]);
+  }, [subscribeToKeys]);
 
   return placePortal;
 }

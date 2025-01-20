@@ -43,7 +43,7 @@ export function Box({ position }) {
     );
 
     if (isHeld) {
-      if (getKeys().pickUp && !inCollision) {
+      if (!inCollision) {
         setIsHeld(false);
         setName("Box");
       }
@@ -54,7 +54,7 @@ export function Box({ position }) {
   };
 
   useFrame(() => {
-    if (getKeys().pickUp || getKeys().release) {
+    if (getKeys().pickUp) {
       handlePickupOrRelease();
     }
     if (!cubeRef.current) return;

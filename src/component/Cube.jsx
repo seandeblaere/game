@@ -48,7 +48,7 @@ export function CubePressed({
   position = [0, 0, 0],
   args = [4, 4, 4],
   color = "#a0b3bd",
-  isPressed = false,
+  isPressed,
 }) {
   const cubeRef = useRef();
   const pressedPosition = 10;
@@ -56,7 +56,7 @@ export function CubePressed({
   useFrame((state, delta) => {
     if (cubeRef.current) {
       const currentPosition = cubeRef.current.translation().y;
-      const targetPosition = isPressed ? pressedPosition : 0;
+      const targetPosition = isPressed.current ? pressedPosition : 0;
       const newPosition =
         currentPosition + (targetPosition - currentPosition) * delta;
 

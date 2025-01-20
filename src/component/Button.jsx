@@ -4,7 +4,6 @@ import { ToonMaterial } from "../material/ToonMaterial";
 import VisibleEdges from "../material/Edges";
 import { RigidBody, MeshCollider } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { MeshBasicMaterial } from "three";
 
 export function Button({ isPressed, setPressed, position }) {
   const { nodes } = useGLTF("/../assets/button.glb");
@@ -23,7 +22,9 @@ export function Button({ isPressed, setPressed, position }) {
   useFrame((state, delta) => {
     if (buttonRef.current) {
       const currentPosition = buttonRef.current.translation().y;
-      const targetPosition = isPressed ? pressedPosition : unpressedPosition;
+      const targetPosition = isPressed.current
+        ? pressedPosition
+        : unpressedPosition;
       const newPosition =
         currentPosition + (targetPosition - currentPosition) * delta;
 
@@ -41,7 +42,7 @@ export function Button({ isPressed, setPressed, position }) {
     const isAttachedCube =
       payload.other.rigidBodyObject?.name === "AttachedBox";
     if (isPlayer || isCube || isAttachedCube) {
-      setPressed(true);
+      isPressed.current = true;
     }
   };
 
@@ -51,7 +52,7 @@ export function Button({ isPressed, setPressed, position }) {
     const isAttachedCube =
       payload.other.rigidBodyObject?.name === "AttachedBox";
     if (isPlayer || isCube || isAttachedCube) {
-      setPressed(false);
+      isPressed.current = false;
     }
   };
 

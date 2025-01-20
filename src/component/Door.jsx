@@ -14,6 +14,8 @@ export function Door({ isOpen, position, rotation }) {
   const left = useRef();
   const right = useRef();
   const [isGroupReady, setIsGroupReady] = useState(false);
+  const [openDoor, setOpenDoor] = useState(false);
+  const doorOpenRef = useRef(false);
 
   useEffect(() => {
     if (group.current) {
@@ -29,10 +31,10 @@ export function Door({ isOpen, position, rotation }) {
     const currentLeftPosition = left.current.translation();
     const currentRightPosition = right.current.translation();
 
-    const upLocalTargetY = isOpen ? 0.8 : 0;
-    const downLocalTargetY = isOpen ? -2.4 : 0;
-    const leftLocalTargetX = isOpen ? -0.5 : 0;
-    const rightLocalTargetX = isOpen ? 0.5 : 0;
+    const upLocalTargetY = isOpen.current ? 0.8 : 0;
+    const downLocalTargetY = isOpen.current ? -2.4 : 0;
+    const leftLocalTargetX = isOpen.current ? -0.5 : 0;
+    const rightLocalTargetX = isOpen.current ? 0.5 : 0;
 
     const worldUpPosition = new THREE.Vector3(
       0,
@@ -58,22 +60,22 @@ export function Door({ isOpen, position, rotation }) {
     const smoothedUpY = THREE.MathUtils.lerp(
       currentUpPosition.y,
       worldUpPosition.y,
-      isOpen ? 0.013 : 0.15
+      isOpen.current ? 0.013 : 0.15
     );
     const smoothedDownY = THREE.MathUtils.lerp(
       currentDownPosition.y,
       worldDownPosition.y,
-      isOpen ? 0.013 : 0.15
+      isOpen.current ? 0.013 : 0.15
     );
     const smoothedLeftX = THREE.MathUtils.lerp(
       currentLeftPosition.x,
       worldLeftPosition.x,
-      isOpen ? 0.15 : 0.013
+      isOpen.current ? 0.15 : 0.013
     );
     const smoothedRightX = THREE.MathUtils.lerp(
       currentRightPosition.x,
       worldRightPosition.x,
-      isOpen ? 0.15 : 0.013
+      isOpen.current ? 0.15 : 0.013
     );
 
     up.current.setNextKinematicTranslation({
@@ -99,6 +101,11 @@ export function Door({ isOpen, position, rotation }) {
       y: worldRightPosition.y,
       z: worldRightPosition.z,
     });
+
+    if (isOpen.current !== doorOpenRef.current) {
+      doorOpenRef.current = isOpen.current;
+      setOpenDoor(isOpen.current);
+    }
   });
 
   return (
@@ -299,7 +306,7 @@ export function Door({ isOpen, position, rotation }) {
                     </group>
                   </group>
                 </group>
-                {!isOpen && (
+                {!openDoor && (
                   <CuboidCollider position={[0, 1.6, 0]} args={[1, 1.6, 0]} />
                 )}
               </RigidBody>

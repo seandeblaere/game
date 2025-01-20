@@ -16,7 +16,7 @@ import { Performance } from "./performance/Performance";
 import { JumpPad } from "./component/JumpPad";
 import { KEYS, CANVAS_PROPS } from "./Const/constants";
 import { NightSky } from "./component/NightSky";
-import { useState, Suspense } from "react";
+import { Suspense, useRef } from "react";
 import { Cube, CubeShoot, CubePressed } from "./component/Cube";
 import { Button } from "./component/Button";
 import { Box } from "./component/Box";
@@ -24,14 +24,13 @@ import { Door } from "./component/Door";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 
 export function App({ setFinished }) {
-  const [isButtonPressed, setIsButtonPressed] = useState(false);
-  const [isButton2Pressed, setIsButton2Pressed] = useState(false);
+  const buttonPressed = useRef(false);
+  const button2Pressed = useRef(false);
 
   const handleEnter = (payload) => {
     const isPlayer = payload.other.rigidBodyObject?.name === "Player";
     if (isPlayer) {
       setFinished(true);
-      console.log("congrats, you have finished the game!");
     }
   };
 
@@ -82,7 +81,7 @@ export function App({ setFinished }) {
 
                 <CeilingTile
                   position={[-2, 11.8, 14.25]}
-                  args={[4.65, 0.1, 4.2]}
+                  args={[4.65, 0.1, 4.5]}
                   color={"#7baae8"}
                   rotation={[0, 0, -Math.PI / 2]}
                   light
@@ -168,9 +167,16 @@ export function App({ setFinished }) {
                 />
 
                 <Wall
-                  columns={4}
+                  columns={1}
                   rows={4}
                   position={[-4.24, 0, 19.3]}
+                  rotation={[0, -Math.PI / 2, 0]}
+                />
+
+                <Wall
+                  columns={3}
+                  rows={4}
+                  position={[-8.48, 0, 19.3]}
                   rotation={[0, -Math.PI / 2, 0]}
                   shoot
                 />
@@ -240,7 +246,7 @@ export function App({ setFinished }) {
                   position={[-30.85, 10, 23.95]}
                   args={[5.8, 0.5, 5.8]}
                   color={"#ff734d"}
-                  isPressed={isButtonPressed}
+                  isPressed={buttonPressed}
                 />
 
                 <CubeShoot
@@ -291,15 +297,10 @@ export function App({ setFinished }) {
                   color={"#fff475"}
                 />
 
-                <Button
-                  isPressed={isButtonPressed}
-                  setPressed={setIsButtonPressed}
-                  position={[-31, 10.15, 17]}
-                />
+                <Button isPressed={buttonPressed} position={[-31, 10.15, 17]} />
 
                 <Button
-                  isPressed={isButton2Pressed}
-                  setPressed={setIsButton2Pressed}
+                  isPressed={button2Pressed}
                   position={[-32, 21.35, 17]}
                 />
 
@@ -309,7 +310,7 @@ export function App({ setFinished }) {
                 <Door
                   position={[-40, 10.039, 27]}
                   rotation={[0, Math.PI / 2, 0]}
-                  isOpen={isButton2Pressed}
+                  isOpen={button2Pressed}
                 />
 
                 <RigidBody
